@@ -393,7 +393,14 @@ function rpeLabel(rpe){
   return '';
 }
 
-/* ======= ROUTE STORE (from localStorage) ======= */
+/* ======= LOAD LOGS & ROUTES from localStorage ======= */
+let logs = {};
+try{
+  logs = JSON.parse(localStorage.getItem('runnaUltraLogs') || '{}');
+}catch(e){
+  logs = {};
+}
+
 let routeStore = {};
 try{
   routeStore = JSON.parse(localStorage.getItem('runnaUltraRoutes') || '{}');
@@ -401,10 +408,24 @@ try{
   routeStore = {};
 }
 
+/* 
+   getRouteLatLngs()
+   👉 UTAMA: baca dari logs[day].route (yang di-save index.html sekarang)
+   👉 CADANGAN: kalau suatu saat kamu pakai runnaUltraRoutes, tetap bisa dibaca.
+*/
 function getRouteLatLngs(day){
-  const r = routeStore[day];
-  if(!r) return null;
-  let pts = r.latlng || r.coords || r.points;
+  let pts = null;
+
+  // 1) dari runnaUltraLogs[day].route
+  const log = logs[day];
+  if(log && Array.isArray(log.route)) pts = log.route;
+
+  // 2) fallback dari runnaUltraRoutes[day]
+  if((!pts || !pts.length) && routeStore[day]){
+    const r = routeStore[day];
+    pts = r.latlng || r.coords || r.points || r.route || [];
+  }
+
   if(!Array.isArray(pts) || !pts.length) return null;
 
   const cleaned = [];
@@ -425,13 +446,6 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
 
 /* ======= BUILD TIMELINE ======= */
 (function init(){
-  let logs = {};
-  try{
-    logs = JSON.parse(localStorage.getItem('runnaUltraLogs')||'{}');
-  }catch(e){
-    logs = {};
-  }
-
   const entries = [];
   Object.keys(logs).forEach(k=>{
     const day = Number(k);
@@ -441,7 +455,7 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     entries.push({day,p,log:lg});
   });
 
-  // ascending hari (3 → 31). Mau terbaru dulu? pakai reverse() aja
+  // ascending hari (3 → 31)
   entries.sort((a,b)=>a.day-b.day);
 
   const timelineEl = document.getElementById('timeline');
@@ -645,7 +659,6 @@ function startAnimation(day, btn){
     st.poly.setLatLngs(pts);
     st.idx++;
 
-    // sedikit “slow-mo” biar kerasa kayak video
     st.rafId = requestAnimationFrame(step);
   };
 
@@ -684,3 +697,4 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
+
