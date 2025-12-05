@@ -348,6 +348,10 @@ const plan = [
   {day:31, type:'Interval',title:'Final Test 1 km',         pace:'4:50–5:20', block:'key'}
 ];
 
+/* ======= GLOBAL LOGS & ROUTES ======= */
+let logs = {};
+let routeStore = {};
+
 /* ======= UTIL ======= */
 function formatPace(sec){
   if(sec==null || isNaN(sec)) return '-';
@@ -394,19 +398,14 @@ function rpeLabel(rpe){
 }
 
 /* ======= ROUTE STORE (from localStorage) ======= */
-let routeStore = {};
 try{
   routeStore = JSON.parse(localStorage.getItem('runnaUltraRoutes') || '{}');
 }catch(e){
   routeStore = {};
 }
 
-function getRouteLatLngs(day){
-  const r = routeStore[day];
-  if(!r) return null;
-  let pts = r.latlng || r.coords || r.points;
-  if(!Array.isArray(pts) || !pts.length) return null;
-
+function cleanLatLngArray(pts){
+  if(!Array.isArray(pts)) return null;
   const cleaned = [];
   for(const p of pts){
     if(Array.isArray(p) && p.length>=2){
@@ -420,12 +419,26 @@ function getRouteLatLngs(day){
   return cleaned.length ? cleaned : null;
 }
 
+function getRouteLatLngs(day){
+  // 1) prioritas: route disimpan di logs[day].route (versi index terbaru)
+  const log = logs[day];
+  if(log && Array.isArray(log.route) && log.route.length){
+    const cleanedFromLog = cleanLatLngArray(log.route);
+    if(cleanedFromLog) return cleanedFromLog;
+  }
+
+  // 2) fallback: struktur lama di runnaUltraRoutes
+  const r = routeStore[day];
+  if(!r) return null;
+  const pts = r.latlng || r.coords || r.points;
+  return cleanLatLngArray(pts);
+}
+
 /* ======= MAP ANIMATION STATE ======= */
 const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
 
 /* ======= BUILD TIMELINE ======= */
 (function init(){
-  let logs = {};
   try{
     logs = JSON.parse(localStorage.getItem('runnaUltraLogs')||'{}');
   }catch(e){
@@ -460,6 +473,7 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
   let bestPace = null;
   let sumHR = 0, countHR = 0;
   let hardCount = 0;
+  const shoeDist = {}; // total km per sepatu
 
   entries.forEach(e=>{
     const {log,p} = e;
@@ -469,6 +483,11 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     }
     if(log.hr!=null && !isNaN(log.hr)){ sumHR+=log.hr; countHR++; }
     if(p.type==='Tempo' || p.type==='Interval') hardCount++;
+
+    if(log.shoe){
+      const d = log.dist!=null && !isNaN(log.dist) ? log.dist : 0;
+      shoeDist[log.shoe] = (shoeDist[log.shoe] || 0) + d;
+    }
   });
 
   const avgHR = countHR? Math.round(sumHR/countHR) : null;
@@ -487,6 +506,18 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     badges.push(`<span class="badge">Sesi keras: ${hardCount}× • balance oke</span>`);
   }
 
+  // badge tambahan: total km per sepatu (top 3)
+  const shoeNames = Object.keys(shoeDist);
+  if(shoeNames.length){
+    const top = shoeNames
+      .map(name=>({name,dist:shoeDist[name]}))
+      .sort((a,b)=>b.dist-a.dist)
+      .slice(0,3);
+    top.forEach(s=>{
+      badges.push(`<span class="badge">Sepatu ${s.name}: ${s.dist.toFixed(1)} km</span>`);
+    });
+  }
+
   summaryEl.innerHTML = badges.join('');
 
   // ===== TIMELINE HTML =====
@@ -498,6 +529,9 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     const hr   = (log.hr!=null && !isNaN(log.hr))? log.hr+' bpm':'-';
     const time = log.timeSec!=null? formatDuration(log.timeSec):'-';
     const rpe  = rpeLabel(log.rpe);
+    const shoe = log.shoe || '';
+    const note = log.note || '';
+
     const typeCls = typeClass(p.type);
     const typeLblCls = typeLabelCls(p.type);
     const blockInfo = blockLabel(p.block);
@@ -548,8 +582,16 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
               <span><span class="label">Pace:</span> ${pace}</span>
               <span><span class="label">HR:</span> ${hr}</span>
             </div>
-            ${rpe ? `<div class="row"><span><span class="label">RPE:</span> ${rpe}</span></div>` : ''}
-            <div class="comment">${comment}</div>
+            ${(shoe || rpe) ? `
+              <div class="row">
+                ${shoe ? `<span><span class="label">Sepatu:</span> ${shoe}</span>` : ''}
+                ${rpe ? `<span><span class="label">RPE:</span> ${rpe}</span>` : ''}
+              </div>
+            ` : ''}
+            <div class="comment">
+              ${comment}
+              ${note ? `<br><span class="label">Catatan:</span> ${note}` : ''}
+            </div>
             <div class="mini-map-wrap">
               <div class="map-controls">
                 <button class="map-btn anim-btn" data-day="${day}" ${hasRoute ? '' : 'disabled'}>
