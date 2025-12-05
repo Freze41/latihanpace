@@ -38,6 +38,7 @@ header{
   border-bottom:1px solid #161633;
   text-shadow:0 0 10px var(--accent-cyan);
   font-family:'Orbitron',sans-serif;
+  gap:10px;
 }
 header .title-block{display:flex;flex-direction:column;gap:2px;}
 header .title-main{font-size:22px;letter-spacing:0.16em;}
@@ -45,6 +46,25 @@ header .title-sub{font-size:10px;letter-spacing:0.22em;color:#7bdcff;}
 header .meta{text-align:right;font-size:10px;color:#9fa8ff;letter-spacing:0.1em;text-transform:uppercase;}
 header .meta span{display:block;}
 header .icon{font-size:26px;margin-right:10px;text-shadow:0 0 14px #ffd84a;}
+
+/* tombol ke timeline */
+.timeline-btn{
+  font-size:11px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid #2bffb3;
+  background:radial-gradient(circle at 0 0,#0b261c,#09221c);
+  color:#caffea;
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  box-shadow:0 0 12px rgba(0,234,255,0.55);
+  white-space:nowrap;
+}
+.timeline-btn:hover{
+  box-shadow:0 0 18px rgba(0,234,255,0.9);
+  transform:translateY(-1px);
+}
 
 /* CYBER GRID OVERLAY */
 body::after{
@@ -216,14 +236,7 @@ body::after{
   box-shadow:0 0 22px rgba(255,77,255,0.9);
 }
 
-/* TANGGAL DIBESARKAN & HIJAU */
-.num{
-  font-size:20px;
-  font-weight:700;
-  color:var(--accent-lime);
-}
-
-/* LABEL TYPE */
+.num{font-size:16px;font-weight:700;color:#b0ff4d;}
 .type-label{margin-top:2px;font-size:12px;font-weight:600;}
 .easy{color:#4ddfff;}.tempo{color:#ff8dff;}.interval{color:#ff6a7f;}.longrun{color:#b0ff4d;}.off{color:#9a9ab0;}
 .pace{font-size:11px;margin-top:3px;color:#a8dfff;}
@@ -234,27 +247,16 @@ body::after{
 .tag-support{background:#00eaff10;border:1px solid #74efff;color:#c7f7ff;}
 .tag-rest{background:#9090a020;border:1px solid #b0b0cc;color:#f0f0ff;}
 
-/* COACH NOTE LEBIH KONTRAS */
-.coach{
-  margin-top:3px;
-  font-size:11px;
-  color:#e8f0ff;
-  background:#151532;
-  border-left:3px solid var(--accent-lime);
-  border-radius:4px;
-  padding:4px 5px;
-}
+.coach{margin-top:3px;font-size:10px;color:#cfd7ff;background:#17172b;border-left:3px solid var(--accent-cyan);border-radius:4px;padding:4px 5px;}
 .check{margin-top:5px;font-size:18px;user-select:none;}
 .logged-badge{position:absolute;top:5px;right:6px;font-size:9px;padding:2px 6px;border-radius:999px;background:#00ff9930;border:1px solid #00ff99;color:#caffee;}
-
-/* MINI LOG LEBIH BESAR */
 .mini-log{
   margin-top:4px;
-  font-size:11px;
-  color:#f0ffff;
-  background:#121238;
+  font-size:10px;
+  color:#e8ffff;
+  background:#121228;
   border-radius:999px;
-  padding:4px 8px;
+  padding:3px 6px;
   display:flex;
   align-items:center;
   gap:6px;
@@ -420,6 +422,10 @@ canvas{
 @media (max-width:600px){
   .calendar{grid-template-columns:repeat(2,1fr);}
   header{flex-direction:column;align-items:flex-start;}
+  .timeline-btn{
+    margin-top:6px;
+    align-self:flex-start;
+  }
 }
 </style>
 </head>
@@ -434,6 +440,10 @@ canvas{
     <span>P5:10 TARGET</span>
     <span>BASE → BUILD → PEAK</span>
   </div>
+  <!-- tombol ke timeline session -->
+  <button class="timeline-btn" onclick="window.open('timeline.html','_blank')">
+    🧵 Session Timeline
+  </button>
 </header>
 
 <div class="progress-box">
@@ -589,7 +599,7 @@ const plan = [
   {day:31, type:'Interval',title:'Final Test 1 km',         pace:'4:50–5:20', focus:'Tes besar, bayangkan race 5K nanti.',                  block:'key'}
 ];
 
-let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, route, ...}}
+let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, route}}
 let selectedIndex = null;
 let activeFilter = 'all';
 let editingIndex = null;
@@ -682,105 +692,51 @@ function haversineKm(a,b){
   return 2*R*Math.asin(Math.sqrt(h));
 }
 
-/* helper agar kebal namespace, misal <ns3:Trackpoint> */
-function findFirstByLocalName(root, name){
-  const all = root.getElementsByTagName('*');
-  for(let i=0;i<all.length;i++){
-    if(all[i].localName === name) return all[i];
-  }
-  return null;
-}
-function getTextByLocalName(root,name){
-  const node = findFirstByLocalName(root,name);
-  return node ? node.textContent.trim() : null;
-}
-
 function parseTCXData(xmlText){
   try{
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText,"application/xml");
-
-    const allNodes = xml.getElementsByTagName('*');
-    const pts = [];
-    const laps = [];
-    for(let i=0;i<allNodes.length;i++){
-      const n = allNodes[i];
-      if(n.localName === 'Trackpoint') pts.push(n);
-      else if(n.localName === 'Lap') laps.push(n);
-    }
-
+    const pts = xml.getElementsByTagName("Trackpoint");
     const route = [];
     let firstTime=null,lastTime=null;
     let lastDist=null;
-    let hrSum=0, hrCount=0;
 
     for(let i=0;i<pts.length;i++){
       const tp = pts[i];
 
-      // Waktu
-      const timeText = getTextByLocalName(tp,'Time');
-      if(timeText){
-        const t = new Date(timeText).getTime();
+      const timeEl = tp.getElementsByTagName("Time")[0];
+      if(timeEl){
+        const t = new Date(timeEl.textContent.trim()).getTime();
         if(!isNaN(t)){
           if(firstTime===null) firstTime=t;
           lastTime=t;
         }
       }
 
-      // Jarak
-      const distText = getTextByLocalName(tp,'DistanceMeters');
-      if(distText){
-        const d = parseFloat(distText);
+      const distEl = tp.getElementsByTagName("DistanceMeters")[0];
+      if(distEl){
+        const d = parseFloat(distEl.textContent);
         if(!isNaN(d)) lastDist=d;
       }
 
-      // Posisi
-      const latText = getTextByLocalName(tp,'LatitudeDegrees');
-      const lonText = getTextByLocalName(tp,'LongitudeDegrees');
-      if(latText && lonText){
-        const lat = parseFloat(latText);
-        const lon = parseFloat(lonText);
-        if(!isNaN(lat) && !isNaN(lon)){
-          // simpan sebagian titik biar nggak terlalu berat
-          if(i===0 || i===pts.length-1 || i%2===0){
+      const pos = tp.getElementsByTagName("Position")[0];
+      if(pos){
+        const latEl = pos.getElementsByTagName("LatitudeDegrees")[0];
+        const lonEl = pos.getElementsByTagName("LongitudeDegrees")[0];
+        if(latEl && lonEl){
+          const lat = parseFloat(latEl.textContent);
+          const lon = parseFloat(lonEl.textContent);
+          if(!isNaN(lat) && !isNaN(lon) && i%3===0){
             route.push([lat,lon]);
           }
-        }
-      }
-
-      // HR
-      const hrContainer = findFirstByLocalName(tp,'HeartRateBpm');
-      if(hrContainer){
-        const hrText = getTextByLocalName(hrContainer,'Value') || hrContainer.textContent.trim();
-        const hr = parseFloat(hrText);
-        if(!isNaN(hr)){
-          hrSum += hr;
-          hrCount++;
         }
       }
     }
 
     let totalSec = (firstTime!=null && lastTime!=null && lastTime>firstTime)
       ? (lastTime-firstTime)/1000 : null;
+    let totalKm = (lastDist!=null) ? lastDist/1000 : null;
 
-    let totalKm = lastDist!=null ? lastDist/1000 : null;
-
-    // fallback: pakai Lap kalau ada
-    if((totalKm==null || totalKm===0) && laps.length){
-      let lapDist=0, lapTime=0;
-      laps.forEach(lap=>{
-        const dText = getTextByLocalName(lap,'DistanceMeters');
-        const tText = getTextByLocalName(lap,'TotalTimeSeconds');
-        const d = dText? parseFloat(dText): NaN;
-        const t = tText? parseFloat(tText): NaN;
-        if(!isNaN(d)) lapDist += d;
-        if(!isNaN(t)) lapTime += t;
-      });
-      if(lapDist>0) totalKm = lapDist/1000;
-      if(lapTime>0 && (totalSec==null || totalSec===0)) totalSec = lapTime;
-    }
-
-    // fallback lagi: hitung jarak dari koordinat
     if((totalKm==null || totalKm===0) && route.length>1){
       let d=0;
       for(let i=1;i<route.length;i++){
@@ -794,12 +750,10 @@ function parseTCXData(xmlText){
       paceSec = totalSec/totalKm;
     }
 
-    const avgHR = hrCount ? hrSum/hrCount : null;
-
-    return {route,totalKm,totalSec,paceSec,avgHR};
+    return {route,totalKm,totalSec,paceSec};
   }catch(e){
     console.error('TCX parse error',e);
-    return {route:[],totalKm:null,totalSec:null,paceSec:null,avgHR:null};
+    return {route:[],totalKm:null,totalSec:null,paceSec:null};
   }
 }
 
@@ -846,9 +800,6 @@ function handleTCXChange(e){
     }
     if(stats.totalSec!=null){
       document.getElementById('modalTime').value = formatDuration(Math.round(stats.totalSec));
-    }
-    if(stats.avgHR!=null){
-      document.getElementById('modalHR').value = Math.round(stats.avgHR);
     }
 
     if(stats.route && stats.route.length){
@@ -1382,15 +1333,15 @@ function saveModalLog(){
   const timeStr = document.getElementById('modalTime').value.trim();
   const rpeStr  = document.getElementById('modalRPE').value;
 
-  let paceSec = paceStr? parsePace(paceStr): null;
-  let hrVal   = hrStr? Number(hrStr): null;
-  let distVal = distStr? Number(distStr): null;
+  let paceSec = paceStr ? parsePace(paceStr) : null;
+  let hrVal   = hrStr   ? Number(hrStr)      : null;
+  let distVal = distStr ? Number(distStr)    : null;
   let timeSec = null;
 
   if(timeStr){
     const parts = timeStr.split(':').map(s=>parseInt(s,10));
     if(parts.length===2){
-      timeSec = parts[0]*60+parts[1];
+      timeSec = parts[0]*60 + parts[1];
     }else if(parts.length===3){
       timeSec = parts[0]*3600 + parts[1]*60 + parts[2];
     }
@@ -1398,18 +1349,17 @@ function saveModalLog(){
   }
 
   const tcx = pendingTCX && pendingTCX.day===p.day ? pendingTCX : null;
+
+  // pakai data dari TCX kalau ada
   if(tcx){
     if(distVal==null || isNaN(distVal)){
-      distVal = tcx.totalKm!=null? Number(tcx.totalKm.toFixed(2)) : distVal;
+      distVal = tcx.totalKm!=null ? Number(tcx.totalKm.toFixed(2)) : distVal;
     }
     if(paceSec==null && tcx.paceSec!=null){
       paceSec = Math.round(tcx.paceSec);
     }
     if(timeSec==null && tcx.totalSec!=null){
       timeSec = Math.round(tcx.totalSec);
-    }
-    if((hrVal==null || isNaN(hrVal)) && tcx.avgHR!=null){
-      hrVal = Math.round(tcx.avgHR);
     }
   }
 
@@ -1420,11 +1370,34 @@ function saveModalLog(){
     dist: distVal,
     timeSec: timeSec,
     rpe: rpeStr || null,
-    route: tcx && tcx.route && tcx.route.length ? tcx.route : (prevLog.route || undefined)
+    // simpan juga route GPS
+    route: tcx && tcx.route && tcx.route.length
+      ? tcx.route                 // route baru dari TCX
+      : (prevLog.route || undefined) // kalau nggak upload tcx lagi, pakai route lama
   };
 
+  // simpan ke runnaUltraLogs (dipakai index + summary di timeline)
   logs[p.day] = baseLog;
   pendingTCX = null;
+  saveLogs();
+
+  // 🔁 MIRROR ke runnaUltraRoutes (dipakai mini-map & animasi di timeline session)
+  try{
+    const routes = JSON.parse(localStorage.getItem('runnaUltraRoutes') || '{}');
+
+    if(baseLog.route && baseLog.route.length){
+      // format yang dibaca file timeline: routes[day].latlng = [[lat,lng], ...]
+      routes[p.day] = { latlng: baseLog.route };
+    }else{
+      // kalau nggak ada route, hapus aja biar bersih
+      delete routes[p.day];
+    }
+
+    localStorage.setItem('runnaUltraRoutes', JSON.stringify(routes));
+  }catch(e){
+    console.error('Gagal update runnaUltraRoutes', e);
+  }
+
   afterSaveLog(p, baseLog);
 }
 
