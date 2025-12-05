@@ -288,7 +288,7 @@ footer{
       <div class="title-sub">SESSION TIMELINE + MINI MAP</div>
     </div>
   </div>
-  <!-- Ganti index.html dengan nama file halaman utama kamu -->
+  <!-- Ganti href ini sesuai nama file halaman utama -->
   <a href="index.html">← Kembali ke Kalender</a>
 </header>
 
@@ -310,7 +310,7 @@ footer{
 </main>
 
 <footer>
-  Data diambil dari localStorage: <code>runnaUltraLogs</code> &amp; <code>runnaUltraRoutes</code>.  
+  Data diambil dari localStorage: <code>runnaUltraLogs</code> &amp; (opsional) <code>runnaUltraRoutes</code>.<br>
   Edit log & upload TCX tetap dari halaman utama.
 </footer>
 
@@ -408,7 +408,7 @@ try{
   routeStore = {};
 }
 
-/* 
+/*
    getRouteLatLngs()
    👉 UTAMA: baca dari logs[day].route (yang di-save index.html sekarang)
    👉 CADANGAN: kalau suatu saat kamu pakai runnaUltraRoutes, tetap bisa dibaca.
@@ -416,11 +416,9 @@ try{
 function getRouteLatLngs(day){
   let pts = null;
 
-  // 1) dari runnaUltraLogs[day].route
   const log = logs[day];
   if(log && Array.isArray(log.route)) pts = log.route;
 
-  // 2) fallback dari runnaUltraRoutes[day]
   if((!pts || !pts.length) && routeStore[day]){
     const r = routeStore[day];
     pts = r.latlng || r.coords || r.points || r.route || [];
@@ -474,15 +472,25 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
   let bestPace = null;
   let sumHR = 0, countHR = 0;
   let hardCount = 0;
+  const shoeDist = {};
 
   entries.forEach(e=>{
     const {log,p} = e;
-    if(log.dist!=null && !isNaN(log.dist)) totalDist += log.dist;
+    if(log.dist!=null && !isNaN(log.dist)){
+      totalDist += log.dist;
+    }
     if(log.paceSec!=null && !isNaN(log.paceSec)){
       if(bestPace==null || log.paceSec<bestPace) bestPace = log.paceSec;
     }
-    if(log.hr!=null && !isNaN(log.hr)){ sumHR+=log.hr; countHR++; }
+    if(log.hr!=null && !isNaN(log.hr)){
+      sumHR+=log.hr; countHR++;
+    }
     if(p.type==='Tempo' || p.type==='Interval') hardCount++;
+
+    if(log.shoe){
+      const d = log.dist!=null && !isNaN(log.dist) ? log.dist : 0;
+      shoeDist[log.shoe] = (shoeDist[log.shoe] || 0) + d;
+    }
   });
 
   const avgHR = countHR? Math.round(sumHR/countHR) : null;
@@ -501,6 +509,18 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     badges.push(`<span class="badge">Sesi keras: ${hardCount}× • balance oke</span>`);
   }
 
+  const shoeNames = Object.keys(shoeDist);
+  if(shoeNames.length){
+    const top = shoeNames
+      .map(name => ({name, dist: shoeDist[name]}))
+      .sort((a,b)=>b.dist-a.dist)
+      .slice(0, 2);
+
+    top.forEach(s=>{
+      badges.push(`<span class="badge">Sepatu ${s.name}: ${s.dist.toFixed(1)} km</span>`);
+    });
+  }
+
   summaryEl.innerHTML = badges.join('');
 
   // ===== TIMELINE HTML =====
@@ -512,6 +532,8 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     const hr   = (log.hr!=null && !isNaN(log.hr))? log.hr+' bpm':'-';
     const time = log.timeSec!=null? formatDuration(log.timeSec):'-';
     const rpe  = rpeLabel(log.rpe);
+    const shoe = log.shoe || '';
+    const note = log.note || '';
     const typeCls = typeClass(p.type);
     const typeLblCls = typeLabelCls(p.type);
     const blockInfo = blockLabel(p.block);
@@ -536,10 +558,6 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
       comment = 'Rest day dicatat. Recovery itu bagian dari program, bukan tanda malas.';
     }
 
-    if(rpe){
-      comment += ` Feeling: ${rpe}.`;
-    }
-
     html += `
       <div class="item">
         <div class="item-dot ${typeCls}"></div>
@@ -562,8 +580,18 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
               <span><span class="label">Pace:</span> ${pace}</span>
               <span><span class="label">HR:</span> ${hr}</span>
             </div>
-            ${rpe ? `<div class="row"><span><span class="label">RPE:</span> ${rpe}</span></div>` : ''}
-            <div class="comment">${comment}</div>
+
+            ${(shoe || rpe) ? `
+            <div class="row">
+              ${shoe ? `<span><span class="label">Sepatu:</span> ${shoe}</span>` : ''}
+              ${rpe ? `<span><span class="label">RPE:</span> ${rpe}</span>` : ''}
+            </div>
+            ` : ''}
+
+            <div class="comment">
+              ${comment}
+              ${note ? `<br><span class="label">Catatan:</span> ${note}` : ''}
+            </div>
             <div class="mini-map-wrap">
               <div class="map-controls">
                 <button class="map-btn anim-btn" data-day="${day}" ${hasRoute ? '' : 'disabled'}>
@@ -613,7 +641,6 @@ function initMiniMap(day){
 
   const poly = L.polyline([], {color:'#00eaff',weight:3}).addTo(map);
 
-  // Start & end markers kecil
   L.circleMarker(latlngs[0], {radius:3,color:'#b0ff4d',fillColor:'#b0ff4d',fillOpacity:1}).addTo(map);
   if(latlngs.length>1){
     L.circleMarker(latlngs[latlngs.length-1], {radius:3,color:'#ff4dff',fillColor:'#ff4dff',fillOpacity:1}).addTo(map);
@@ -635,7 +662,6 @@ function startAnimation(day, btn){
   const st = mapStates[day];
   if(!st || !st.latlngs || !st.latlngs.length) return;
 
-  // reset
   st.poly.setLatLngs([st.latlngs[0]]);
   st.idx = 1;
   st.playing = true;
@@ -697,4 +723,3 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
-
