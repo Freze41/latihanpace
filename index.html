@@ -38,7 +38,6 @@ header{
   border-bottom:1px solid #161633;
   text-shadow:0 0 10px var(--accent-cyan);
   font-family:'Orbitron',sans-serif;
-  gap:10px;
 }
 header .title-block{display:flex;flex-direction:column;gap:2px;}
 header .title-main{font-size:22px;letter-spacing:0.16em;}
@@ -46,25 +45,6 @@ header .title-sub{font-size:10px;letter-spacing:0.22em;color:#7bdcff;}
 header .meta{text-align:right;font-size:10px;color:#9fa8ff;letter-spacing:0.1em;text-transform:uppercase;}
 header .meta span{display:block;}
 header .icon{font-size:26px;margin-right:10px;text-shadow:0 0 14px #ffd84a;}
-
-/* tombol ke timeline */
-.timeline-btn{
-  font-size:11px;
-  padding:6px 12px;
-  border-radius:999px;
-  border:1px solid #2bffb3;
-  background:radial-gradient(circle at 0 0,#0b261c,#09221c);
-  color:#caffea;
-  cursor:pointer;
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  box-shadow:0 0 12px rgba(0,234,255,0.55);
-  white-space:nowrap;
-}
-.timeline-btn:hover{
-  box-shadow:0 0 18px rgba(0,234,255,0.9);
-  transform:translateY(-1px);
-}
 
 /* CYBER GRID OVERLAY */
 body::after{
@@ -236,7 +216,7 @@ body::after{
   box-shadow:0 0 22px rgba(255,77,255,0.9);
 }
 
-.num{font-size:16px;font-weight:700;color:#b0ff4d;}
+.num{font-size:16px;font-weight:700;color:#ffffff;}
 .type-label{margin-top:2px;font-size:12px;font-weight:600;}
 .easy{color:#4ddfff;}.tempo{color:#ff8dff;}.interval{color:#ff6a7f;}.longrun{color:#b0ff4d;}.off{color:#9a9ab0;}
 .pace{font-size:11px;margin-top:3px;color:#a8dfff;}
@@ -422,10 +402,6 @@ canvas{
 @media (max-width:600px){
   .calendar{grid-template-columns:repeat(2,1fr);}
   header{flex-direction:column;align-items:flex-start;}
-  .timeline-btn{
-    margin-top:6px;
-    align-self:flex-start;
-  }
 }
 </style>
 </head>
@@ -440,10 +416,6 @@ canvas{
     <span>P5:10 TARGET</span>
     <span>BASE → BUILD → PEAK</span>
   </div>
-  <!-- tombol ke timeline session -->
-  <button class="timeline-btn" onclick="window.open('timeline.html','_blank')">
-    🧵 Session Timeline
-  </button>
 </header>
 
 <div class="progress-box">
@@ -480,6 +452,7 @@ canvas{
   <div id="statDistance">Total jarak: 0.00 km</div>
   <div id="statHR">Rata-rata HR: -</div>
   <div id="statPace">Best pace: -</div>
+  <div id="statRacePredict">Prediksi 5K (kasar): -</div>
   <div id="streakLine">Streak: 0 hari (best 0)</div>
 
   <hr style="border:none;border-top:1px solid #26264a;margin:8px 0;">
@@ -547,6 +520,25 @@ canvas{
           <option value="crazy">Meledak (RPE 9–10)</option>
         </select>
       </div>
+
+      <!-- NEW: Sepatu -->
+      <div>
+        <label>Sepatu yang dipakai</label>
+        <select id="modalShoe">
+          <option value="">Pilih sepatu</option>
+          <option value="Ortus Hyperglide">Ortus Hyperglide</option>
+          <option value="Asics Novablast">Asics Novablast</option>
+          <option value="Sandal / Barefoot">Sandal / Barefoot</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+
+      <!-- NEW: Catatan -->
+      <div style="grid-column:1 / -1;">
+        <label>Catatan singkat</label>
+        <input id="modalNote" type="text" placeholder="Misal: panas banget, lari bareng teman, perut agak nggak enak" />
+      </div>
+
       <div>
         <label>File TCX (auto isi pace & jarak)</label>
         <input id="modalTCX" type="file" accept=".tcx,application/xml" />
@@ -599,7 +591,7 @@ const plan = [
   {day:31, type:'Interval',title:'Final Test 1 km',         pace:'4:50–5:20', focus:'Tes besar, bayangkan race 5K nanti.',                  block:'key'}
 ];
 
-let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, route}}
+let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, shoe, note, route}}
 let selectedIndex = null;
 let activeFilter = 'all';
 let editingIndex = null;
@@ -896,6 +888,17 @@ function computeStats(){
     'Rata-rata HR: '+(countHR?Math.round(sumHR/countHR)+' bpm':'-');
   document.getElementById('statPace').textContent =
     'Best pace: '+(bestPace?formatPace(bestPace)+' /km':'-');
+
+  // Prediksi 5K kasar
+  const raceEl = document.getElementById('statRacePredict');
+  if(raceEl){
+    if(bestPace){
+      const fiveKSec = Math.round(bestPace * 5.2); // sedikit konservatif
+      raceEl.textContent = 'Prediksi 5K (kasar): ' + formatDuration(fiveKSec);
+    }else{
+      raceEl.textContent = 'Prediksi 5K (kasar): -';
+    }
+  }
 
   // STREAK
   const days = plan.map(p=>p.day).sort((a,b)=>a-b);
@@ -1215,6 +1218,8 @@ function openModalForIndex(index){
   document.getElementById('modalDist').value = dayLog.dist!=null?dayLog.dist:'';
   document.getElementById('modalTime').value = dayLog.timeSec!=null?formatDuration(dayLog.timeSec):'';
   document.getElementById('modalRPE').value = dayLog.rpe || '';
+  document.getElementById('modalShoe').value = dayLog.shoe || '';
+  document.getElementById('modalNote').value = dayLog.note || '';
   document.getElementById('modalTCX').value = '';
   document.getElementById('modalOverlay').classList.add('show');
 
@@ -1226,7 +1231,7 @@ function closeModal(){
   pendingTCX = null;
 }
 
-function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr){
+function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
   if(paceSec==null && hrVal==null && (distVal==null || isNaN(distVal))){
     return `Log ${p.day} Des sudah tersimpan. Next step: upload TCX atau isi pace/jarak biar coach report makin pedes tapi akurat 😉`;
   }
@@ -1292,6 +1297,10 @@ function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr){
     }
   }
 
+  if(shoeStr){
+    lines.push(`Sepatu: ${shoeStr}.`);
+  }
+
   return lines.join(' • ');
 }
 
@@ -1319,7 +1328,14 @@ function afterSaveLog(p, baseLog){
   refreshMapDayOptions();
   closeModal();
   renderRouteForDay(p.day);
-  const coachMsg = buildCoachBubbleMessage(p, baseLog.paceSec, baseLog.hr, baseLog.dist, baseLog.rpe);
+  const coachMsg = buildCoachBubbleMessage(
+    p,
+    baseLog.paceSec,
+    baseLog.hr,
+    baseLog.dist,
+    baseLog.rpe,
+    baseLog.shoe
+  );
   showBubble(coachMsg, p.type);
 }
 
@@ -1332,16 +1348,18 @@ function saveModalLog(){
   const distStr = document.getElementById('modalDist').value.trim();
   const timeStr = document.getElementById('modalTime').value.trim();
   const rpeStr  = document.getElementById('modalRPE').value;
+  const shoeStr = document.getElementById('modalShoe').value;
+  const noteStr = document.getElementById('modalNote').value.trim();
 
-  let paceSec = paceStr ? parsePace(paceStr) : null;
-  let hrVal   = hrStr   ? Number(hrStr)      : null;
-  let distVal = distStr ? Number(distStr)    : null;
+  let paceSec = paceStr? parsePace(paceStr): null;
+  let hrVal   = hrStr? Number(hrStr): null;
+  let distVal = distStr? Number(distStr): null;
   let timeSec = null;
 
   if(timeStr){
     const parts = timeStr.split(':').map(s=>parseInt(s,10));
     if(parts.length===2){
-      timeSec = parts[0]*60 + parts[1];
+      timeSec = parts[0]*60+parts[1];
     }else if(parts.length===3){
       timeSec = parts[0]*3600 + parts[1]*60 + parts[2];
     }
@@ -1349,11 +1367,9 @@ function saveModalLog(){
   }
 
   const tcx = pendingTCX && pendingTCX.day===p.day ? pendingTCX : null;
-
-  // pakai data dari TCX kalau ada
   if(tcx){
     if(distVal==null || isNaN(distVal)){
-      distVal = tcx.totalKm!=null ? Number(tcx.totalKm.toFixed(2)) : distVal;
+      distVal = tcx.totalKm!=null? Number(tcx.totalKm.toFixed(2)) : distVal;
     }
     if(paceSec==null && tcx.paceSec!=null){
       paceSec = Math.round(tcx.paceSec);
@@ -1370,34 +1386,13 @@ function saveModalLog(){
     dist: distVal,
     timeSec: timeSec,
     rpe: rpeStr || null,
-    // simpan juga route GPS
-    route: tcx && tcx.route && tcx.route.length
-      ? tcx.route                 // route baru dari TCX
-      : (prevLog.route || undefined) // kalau nggak upload tcx lagi, pakai route lama
+    shoe: shoeStr || prevLog.shoe || null,
+    note: noteStr || prevLog.note || null,
+    route: tcx && tcx.route && tcx.route.length ? tcx.route : (prevLog.route || undefined)
   };
 
-  // simpan ke runnaUltraLogs (dipakai index + summary di timeline)
   logs[p.day] = baseLog;
   pendingTCX = null;
-  saveLogs();
-
-  // 🔁 MIRROR ke runnaUltraRoutes (dipakai mini-map & animasi di timeline session)
-  try{
-    const routes = JSON.parse(localStorage.getItem('runnaUltraRoutes') || '{}');
-
-    if(baseLog.route && baseLog.route.length){
-      // format yang dibaca file timeline: routes[day].latlng = [[lat,lng], ...]
-      routes[p.day] = { latlng: baseLog.route };
-    }else{
-      // kalau nggak ada route, hapus aja biar bersih
-      delete routes[p.day];
-    }
-
-    localStorage.setItem('runnaUltraRoutes', JSON.stringify(routes));
-  }catch(e){
-    console.error('Gagal update runnaUltraRoutes', e);
-  }
-
   afterSaveLog(p, baseLog);
 }
 
