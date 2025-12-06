@@ -789,14 +789,19 @@ function rpeLabel(rpe){
   if(rpe==='crazy') return 'Meledak';
   return '';
 }
+const STORAGE_KEY = 'runnaUltraLogs_5K_DEC'; // khusus 5K Desember
+
 function loadLogs(){
-  try{ logs = JSON.parse(localStorage.getItem('runnaUltraLogs_5k')||'{}'); }
-  catch(e){ logs = {}; }
-}
-function saveLogs(){
-  localStorage.setItem('runnaUltraLogs_5k', JSON.stringify(logs));
+  try{
+    logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  }catch(e){
+    logs = {};
+  }
 }
 
+function saveLogs(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+}
 /* ===== TCX PARSE & MAP ===== */
 function haversineKm(a,b){
   const R = 6371;
@@ -1681,3 +1686,4 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
+
