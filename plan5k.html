@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rama — Cyberpunk Runna Pro (TCX Auto Mode)</title>
+<title>Rama — Plan 5K Desember</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -45,6 +45,24 @@ header .title-sub{font-size:10px;letter-spacing:0.22em;color:#7bdcff;}
 header .meta{text-align:right;font-size:10px;color:#9fa8ff;letter-spacing:0.1em;text-transform:uppercase;}
 header .meta span{display:block;}
 header .icon{font-size:26px;margin-right:10px;text-shadow:0 0 14px #ffd84a;}
+
+/* timeline button in header */
+.timeline-btn{
+  margin-top:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(0,234,255,0.8);
+  background:rgba(5,5,25,0.6);
+  color:#dffbff;
+  font-size:9px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.timeline-btn:hover{
+  background:rgba(0,234,255,0.14);
+  box-shadow:0 0 10px rgba(0,234,255,0.9);
+}
 
 /* CYBER GRID OVERLAY */
 body::after{
@@ -136,6 +154,7 @@ body::after{
 .chip-tempo{border-color:#ff8dff80;}
 .chip-interval{border-color:#ff6a7f80;}
 .chip-long{border-color:#b0ff4d80;}
+.chip-strength{border-color:#ffc85780;}
 .chip-rest{border-color:#b0b0cc80;}
 .chip-active{opacity:1;box-shadow:0 0 10px #00eaff90;border-color:#00eaff;}
 
@@ -218,7 +237,12 @@ body::after{
 
 .num{font-size:16px;font-weight:700;color:#ffffff;}
 .type-label{margin-top:2px;font-size:12px;font-weight:600;}
-.easy{color:#4ddfff;}.tempo{color:#ff8dff;}.interval{color:#ff6a7f;}.longrun{color:#b0ff4d;}.off{color:#9a9ab0;}
+.easy{color:#4ddfff;}
+.tempo{color:#ff8dff;}
+.interval{color:#ff6a7f;}
+.longrun{color:#b0ff4d;}
+.strength{color:#ffc857;}
+.off{color:#9a9ab0;}
 .pace{font-size:11px;margin-top:3px;color:#a8dfff;}
 .pace span{font-weight:600;}
 
@@ -403,7 +427,8 @@ canvas{
   .calendar{grid-template-columns:repeat(2,1fr);}
   header{flex-direction:column;align-items:flex-start;}
 }
-  /* === FLOATING BUTTON: SESSION TIMELINE === */
+
+/* === FLOATING BUTTON: SESSION TIMELINE === */
 .fab-timeline{
   position:fixed;
   right:14px;
@@ -490,29 +515,29 @@ canvas{
     display:none;
   }
 }
-
 </style>
 </head>
 <body>
 <header>
-  <div class="icon">🏃‍♂️</div>
-  <div class="title-block">
-    <div class="title-main">RAMA RUNNA PRO</div>
-    <div class="title-sub">CYBERPUNK TRAINING DASHBOARD</div>
+  <div style="display:flex;align-items:center;">
+    <div class="icon">🏃‍♂️</div>
+    <div class="title-block">
+      <div class="title-main">RAMA RUNNA PRO — 5K</div>
+      <div class="title-sub">DESEMBER 5K SUB-30 TRAINING PLAN</div>
+    </div>
   </div>
   <div class="meta">
     <span>P5:10 TARGET</span>
-    <span>BASE → BUILD → PEAK</span>
-    <!-- tombol ke timeline session -->
-  <button class="timeline-btn" onclick="window.open('timeline.html','_blank')">
-    🧵 Session Timeline
-  </button>
+    <span>5K PLAN • BASE → BUILD → PEAK</span>
+    <button class="timeline-btn" onclick="window.open('timeline.html','_blank')">
+      🧵 SESSION TIMELINE
+    </button>
   </div>
 </header>
 
 <div class="progress-box">
   <div class="progress-top">
-    <div class="progress-title">WEEKLY TRAINING PROGRESS</div>
+    <div class="progress-title">WEEKLY TRAINING PROGRESS — 5K DESEMBER</div>
     <div class="progress-badge" id="badgeLabel">Base Phase</div>
   </div>
   <div class="progress-track"><div id="progressBar"></div></div>
@@ -527,20 +552,21 @@ canvas{
     <div class="chip chip-tempo" data-type="Tempo"><span class="icon">🔥</span>Tempo</div>
     <div class="chip chip-interval" data-type="Interval"><span class="icon">⚡</span>Interval</div>
     <div class="chip chip-long" data-type="Long"><span class="icon">🛸</span>Long</div>
+    <div class="chip chip-strength" data-type="Strength"><span class="icon">🏋️‍♂️</span>Strength</div>
     <div class="chip chip-rest" data-type="Rest"><span class="icon">💤</span>Rest</div>
   </div>
 </div>
 
 <div class="calendar-wrapper">
   <div class="calendar-head">
-    <span class="range">Plan: 3–31 Des</span>
+    <span class="range">Plan: 3–31 Des (5K)</span>
     <span class="caption">Tap tanggal → upload TCX → pace/jarak/waktu auto • map & report ikut update</span>
   </div>
   <div id="calendar" class="calendar"></div>
 </div>
 
 <div class="stats-box">
-  <h3>Statistik Latihan</h3>
+  <h3>Statistik Latihan 5K Desember</h3>
   <div id="statDistance">Total jarak: 0.00 km</div>
   <div id="statHR">Rata-rata HR: -</div>
   <div id="statPace">Best pace: -</div>
@@ -650,37 +676,44 @@ canvas{
 <script>
 const WEEKLY_TARGET = 20; // km per minggu
 
-// ===== PLAN 3–31 DES =====
+// ===== PLAN 3–31 DES — 5K FOCUSED + STRENGTH =====
 const plan = [
-  {day:3,  type:'Easy',    title:'Easy Run 30 menit',       pace:'7:10–7:40', focus:'Bangun aerobic base dengan lari santai dan rileks.',     block:'support'},
-  {day:4,  type:'Easy',    title:'Easy Run 40 menit',       pace:'7:10–7:30', focus:'Tambah durasi, jaga napas tetap nyaman.',               block:'support'},
-  {day:5,  type:'Interval',title:'Interval 6×200m',         pace:'5:00–5:20', focus:'Latih kecepatan & cadence, recovery jalan/pelan.',      block:'key'},
-  {day:6,  type:'Easy',    title:'Recovery Run',            pace:'7:20–7:50', focus:'Fokus pemulihan, jaga kaki tetap ringan.',              block:'support'},
-  {day:7,  type:'Tempo',   title:'Tempo 15 menit',          pace:'6:15–6:25', focus:'Rasakan ritme stabil sedikit di atas easy.',           block:'key'},
-  {day:8,  type:'Rest',    title:'Rest Day',                pace:'-',         focus:'Full rest, boleh stretching ringan.',                   block:'rest'},
-  {day:9,  type:'Interval',title:'Interval 4×400m',         pace:'5:20–5:30', focus:'Fokus kontrol pace & teknik lari.',                    block:'key'},
-  {day:10, type:'Long',    title:'Long Run 8–10 km',        pace:'7:00–7:30', focus:'Bangun endurance, jaga tetap bisa ngobrol.',           block:'key'},
-  {day:11, type:'Easy',    title:'Recovery Run 30 menit',   pace:'7:20–7:50', focus:'Buang sisa pegal dari long run.',                      block:'support'},
-  {day:12, type:'Tempo',   title:'Steady 25–30 menit',      pace:'6:30–6:50', focus:'Durability di pace sedikit lebih cepat dari easy.',    block:'key'},
-  {day:13, type:'Easy',    title:'Easy Run',                pace:'7:10–7:40', focus:'Enjoy run, jangan lihat pace terlalu sering.',         block:'support'},
-  {day:14, type:'Tempo',   title:'Tempo 2×8 menit',         pace:'6:00–6:15', focus:'Latih threshold, istirahat jog 3 menit antar rep.',    block:'key'},
-  {day:15, type:'Rest',    title:'Rest Day',                pace:'-',         focus:'Recovery penuh, tidur cukup.',                         block:'rest'},
-  {day:16, type:'Interval',title:'Test 1 km',               pace:'5:10–5:40', focus:'Uji kemampuan saat ini, all out tapi tetap terkontrol.',block:'key'},
-  {day:17, type:'Easy',    title:'Easy Shakeout',           pace:'7:10–7:40', focus:'Ringan 20–30 menit, buat kaki tetap aktif.',           block:'support'},
-  {day:18, type:'Interval',title:'Interval 5×400m',         pace:'5:10–5:25', focus:'Naikkan VO2max, fokus bentuk lari.',                   block:'key'},
-  {day:19, type:'Rest',    title:'Rest Day',                pace:'-',         focus:'Istirahat atau jalan santai.',                         block:'rest'},
-  {day:20, type:'Tempo',   title:'Steady 30 menit',         pace:'6:30–6:50', focus:'Pertahankan ritme konstan tanpa sprint.',              block:'key'},
-  {day:21, type:'Long',    title:'Long Run 9–10 km',        pace:'7:00–7:40', focus:'Build endurance lagi, fuel & hidrasi cukup.',         block:'key'},
-  {day:22, type:'Easy',    title:'Recovery Run 30 menit',   pace:'7:20–7:50', focus:'Lari santai, boleh sambil denger musik.',              block:'support'},
-  {day:23, type:'Tempo',   title:'Tempo 12–15 menit',       pace:'6:05–6:20', focus:'Sesi tempo utama, rasa agak berat tapi masih kontrol.',block:'key'},
-  {day:24, type:'Easy',    title:'Easy Run',                pace:'7:10–7:40', focus:'Kembali ke easy, kaki harus terasa enteng.',           block:'support'},
-  {day:25, type:'Interval',title:'Interval 6×200m',         pace:'5:00–5:20', focus:'Kecepatan pendek, fokus turnover.',                   block:'key'},
-  {day:26, type:'Interval',title:'Interval 4–6×400m',       pace:'5:05–5:20', focus:'VO2 session, jaga konsistensi tiap rep.',             block:'key'},
-  {day:27, type:'Long',    title:'Long Run 8–9 km',         pace:'7:00–7:30', focus:'Endurance stabil, jangan kebut.',                      block:'key'},
-  {day:28, type:'Rest',    title:'Rest Day',                pace:'-',         focus:'Biarkan tubuh benar-benar pulih.',                     block:'rest'},
-  {day:29, type:'Easy',    title:'Easy Run',                pace:'7:10–7:40', focus:'Light jog menjelang pekan akhir.',                     block:'support'},
-  {day:30, type:'Tempo',   title:'Tempo 2×10 menit',        pace:'6:00–6:10', focus:'Key session sebelum final test.',                     block:'key'},
-  {day:31, type:'Interval',title:'Final Test 1 km',         pace:'4:50–5:20', focus:'Tes besar, bayangkan race 5K nanti.',                  block:'key'}
+  // WEEK 1 (3–9)
+  {day:3,  type:'Easy',     title:'Easy Run 30 menit',           pace:'7:10–7:40', focus:'Bangun aerobic base dengan lari santai dan rileks.',     block:'support'},
+  {day:4,  type:'Strength', title:'Strength 25–35 menit',        pace:'-',         focus:'Bodyweight: squat, lunge, glute bridge, plank. Fokus form, bukan sampai gagal.', block:'support'},
+  {day:5,  type:'Interval', title:'Interval 6×200m',             pace:'5:00–5:20', focus:'Latih kecepatan & cadence, recovery jalan/pelan.',      block:'key'},
+  {day:6,  type:'Easy',     title:'Recovery Run',                pace:'7:20–7:50', focus:'Fokus pemulihan, jaga kaki tetap ringan.',              block:'support'},
+  {day:7,  type:'Tempo',    title:'Tempo 15 menit',              pace:'6:15–6:25', focus:'Rasakan ritme stabil sedikit di atas easy.',           block:'key'},
+  {day:8,  type:'Rest',     title:'Rest Day',                    pace:'-',         focus:'Full rest, boleh stretching ringan.',                   block:'rest'},
+  {day:9,  type:'Interval', title:'Interval 4×400m',             pace:'5:20–5:30', focus:'Fokus kontrol pace & teknik lari.',                    block:'key'},
+
+  // WEEK 2 (10–16)
+  {day:10, type:'Long',     title:'Long Run 8–10 km',            pace:'7:00–7:30', focus:'Bangun endurance, jaga tetap bisa ngobrol.',           block:'key'},
+  {day:11, type:'Strength', title:'Strength 20–30 menit',        pace:'-',         focus:'Glutes, core, dan betis: hip thrust/glute bridge, calf raise, side plank.', block:'support'},
+  {day:12, type:'Tempo',    title:'Steady 25–30 menit',          pace:'6:30–6:50', focus:'Durability di pace sedikit lebih cepat dari easy.',    block:'key'},
+  {day:13, type:'Easy',     title:'Easy Run',                    pace:'7:10–7:40', focus:'Enjoy run, jangan lihat pace terlalu sering.',         block:'support'},
+  {day:14, type:'Tempo',    title:'Tempo 2×8 menit',             pace:'6:00–6:15', focus:'Latih threshold, istirahat jog 3 menit antar rep.',    block:'key'},
+  {day:15, type:'Rest',     title:'Rest Day',                    pace:'-',         focus:'Recovery penuh, tidur cukup.',                         block:'rest'},
+  {day:16, type:'Interval', title:'Test 1 km',                   pace:'5:10–5:40', focus:'Uji kemampuan saat ini, all out tapi tetap terkontrol.',block:'key'},
+
+  // WEEK 3 (17–23)
+  {day:17, type:'Easy',     title:'Easy Shakeout',               pace:'7:10–7:40', focus:'Ringan 20–30 menit, buat kaki tetap aktif.',           block:'support'},
+  {day:18, type:'Interval', title:'Interval 5×400m',             pace:'5:10–5:25', focus:'Naikkan VO2max, fokus bentuk lari.',                   block:'key'},
+  {day:19, type:'Rest',     title:'Rest Day',                    pace:'-',         focus:'Istirahat atau jalan santai.',                         block:'rest'},
+  {day:20, type:'Tempo',    title:'Steady 30 menit',             pace:'6:30–6:50', focus:'Pertahankan ritme konstan tanpa sprint.',              block:'key'},
+  {day:21, type:'Long',     title:'Long Run 9–10 km',            pace:'7:00–7:40', focus:'Build endurance lagi, fuel & hidrasi cukup.',         block:'key'},
+  {day:22, type:'Strength', title:'Strength 25–35 menit',        pace:'-',         focus:'Single-leg work & core: split squat, single-leg RDL ringan, dead bug.', block:'support'},
+  {day:23, type:'Tempo',    title:'Tempo 12–15 menit',           pace:'6:05–6:20', focus:'Sesi tempo utama, rasa agak berat tapi masih kontrol.',block:'key'},
+
+  // WEEK 4 (24–31)
+  {day:24, type:'Easy',     title:'Easy Run',                    pace:'7:10–7:40', focus:'Kembali ke easy, kaki harus terasa enteng.',           block:'support'},
+  {day:25, type:'Interval', title:'Interval 6×200m',             pace:'5:00–5:20', focus:'Kecepatan pendek, fokus turnover.',                   block:'key'},
+  {day:26, type:'Interval', title:'Interval 4–6×400m',           pace:'5:05–5:20', focus:'VO2 session, jaga konsistensi tiap rep.',             block:'key'},
+  {day:27, type:'Long',     title:'Long Run 8–9 km',             pace:'7:00–7:30', focus:'Endurance stabil, jangan kebut.',                      block:'key'},
+  {day:28, type:'Rest',     title:'Rest Day',                    pace:'-',         focus:'Biarkan tubuh benar-benar pulih.',                     block:'rest'},
+  {day:29, type:'Strength', title:'Strength 20–25 menit (ringan)',pace:'-',        focus:'Maintenance: latihan ringan, fokus aktivasi glutes & core.', block:'support'},
+  {day:30, type:'Tempo',    title:'Tempo 2×10 menit',            pace:'6:00–6:10', focus:'Key session sebelum final test.',                     block:'key'},
+  {day:31, type:'Interval', title:'Final Test 1 km',             pace:'4:50–5:20', focus:'Tes besar, bayangkan race 5K nanti.',                  block:'key'}
 ];
 
 let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, shoe, note, route}}
@@ -697,6 +730,7 @@ function getTypeClass(type){
   if(type==='Tempo') return 'tempo';
   if(type==='Interval') return 'interval';
   if(type==='Long') return 'longrun';
+  if(type==='Strength') return 'strength';
   if(type==='Rest') return 'off';
   return '';
 }
@@ -711,6 +745,7 @@ function typeIcon(type){
   if(type==='Tempo') return '🔥';
   if(type==='Interval') return '⚡';
   if(type==='Long') return '🛸';
+  if(type==='Strength') return '🏋️‍♂️';
   if(type==='Rest') return '💤';
   return '🏃‍♂️';
 }
@@ -755,11 +790,11 @@ function rpeLabel(rpe){
   return '';
 }
 function loadLogs(){
-  try{ logs = JSON.parse(localStorage.getItem('runnaUltraLogs')||'{}'); }
+  try{ logs = JSON.parse(localStorage.getItem('runnaUltraLogs_5k')||'{}'); }
   catch(e){ logs = {}; }
 }
 function saveLogs(){
-  localStorage.setItem('runnaUltraLogs', JSON.stringify(logs));
+  localStorage.setItem('runnaUltraLogs_5k', JSON.stringify(logs));
 }
 
 /* ===== TCX PARSE & MAP ===== */
@@ -927,7 +962,13 @@ function renderCalendar(){
       const logHR = lg.hr!=null? lg.hr+' bpm':'-';
       const logD = (lg.dist!=null && !isNaN(lg.dist))? lg.dist.toFixed(1)+' km':'-';
       const logT = lg.timeSec!=null? formatDuration(lg.timeSec):'-';
-      mini = `<div class="mini-log">🏁 ${logD} • ⌛ ${logT} • ⏱ ${logP} • ❤️ ${logHR}</div>`;
+
+      if(p.type === 'Strength'){
+        const rpeTxt = lg.rpe ? rpeLabel(lg.rpe) : '-';
+        mini = `<div class="mini-log">🧱 Strength • ⌛ ${logT} • RPE ${rpeTxt}</div>`;
+      }else{
+        mini = `<div class="mini-log">🏁 ${logD} • ⌛ ${logT} • ⏱ ${logP} • ❤️ ${logHR}</div>`;
+      }
     }
     html += `
       <div class="day ${isToday}${extraClass}${hardClass}" data-index="${idx}" data-type="${p.type}">
@@ -1036,7 +1077,7 @@ function computeStats(){
 
   let weekDist = 0;
   let weekCount = 0;
-  const typeCount = {Easy:0,Tempo:0,Interval:0,Long:0,Rest:0};
+  const typeCount = {Easy:0,Tempo:0,Interval:0,Long:0,Strength:0,Rest:0};
   const weekDays = [];
 
   plan.forEach(p=>{
@@ -1068,6 +1109,7 @@ function computeStats(){
     if(typeCount.Tempo) parts.push(typeCount.Tempo+' Tempo');
     if(typeCount.Interval) parts.push(typeCount.Interval+' Interval');
     if(typeCount.Long) parts.push(typeCount.Long+' Long');
+    if(typeCount.Strength) parts.push(typeCount.Strength+' Strength');
     if(typeCount.Rest) parts.push(typeCount.Rest+' Rest');
     weekDetailEl.textContent =
       `Minggu ini: ${weekDist.toFixed(2)} km • `+
@@ -1324,10 +1366,6 @@ function closeModal(){
 }
 
 function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
-  if(paceSec==null && hrVal==null && (distVal==null || isNaN(distVal))){
-    return `Log ${p.day} Des sudah tersimpan. Next step: upload TCX atau isi pace/jarak biar coach report makin pedes tapi akurat 😉`;
-  }
-
   const lines = [];
   const dayLabel = `${p.day} Des • ${p.type}`;
   lines.push(dayLabel);
@@ -1352,6 +1390,13 @@ function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
     }else{
       lines.push('Long run versi hemat. Nggak apa-apa, yang penting masih lari. Next time jaraknya bisa dinaikkan pelan-pelan.');
     }
+  }else if(p.type==='Strength'){
+    lines.push('Strength session ✔︎. Ini yang bantu jaga lutut, ankle, dan pinggul tetap kuat buat lari jauh.');
+    if(rpeStr==='hard' || rpeStr==='crazy'){
+      lines.push('Kalau strength udah kerasa berat banget, jangan langsung digabung interval keras di hari yang sama.');
+    }else if(rpeStr==='easy'){
+      lines.push('Feeling cukup santai. Konsistensi 2x strength per minggu sudah cukup bikin larinya berasa lebih stabil.');
+    }
   }else if(p.type==='Rest'){
     lines.push('Rest day dicatat. Recovery itu latihan, bukan malas. Good choice 😌');
   }
@@ -1366,7 +1411,7 @@ function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
     }
   }
 
-  if(distVal){
+  if(distVal && p.type!=='Strength'){
     if(distVal >= 10){
       lines.push(`Total ${distVal.toFixed(1)} km — ini sudah level "niatnya serius" 💪`);
     }else if(distVal >= 5){
@@ -1376,7 +1421,7 @@ function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
     }
   }
 
-  if(rpeStr){
+  if(rpeStr && p.type!=='Strength'){
     const label = rpeLabel(rpeStr);
     if(rpeStr==='crazy'){
       lines.push(`Feeling: ${label}. Ini udah mode race. Jangan tiap hari begini kalau nggak mau jadi meme cedera.`);
@@ -1627,6 +1672,7 @@ document.addEventListener('click', e=>{
   }
 })();
 </script>
+
 <!-- Floating button ke Session Timeline -->
 <a href="timeline.html" class="fab-timeline" title="Session Timeline">
   <span class="fab-timeline-icon">🧵</span>
@@ -1635,4 +1681,3 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
-
