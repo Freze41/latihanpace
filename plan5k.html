@@ -976,15 +976,14 @@ function parseTCXData(xmlText){
             }
           }
 
-          const moveSecRaw = (tAtKm - splitStartTime) / 1000;
-const moveSec    = Math.round(moveSecRaw);   // buletin
+          const moveSec = (tAtKm - splitStartTime) / 1000;
 
-kmSplits.push({
-  km: targetKm,
-  distanceKm: 1,
-  moveSec,              // simpan detik bulat
-  paceSec: moveSec      // detik per km
-});
+          kmSplits.push({
+            km: targetKm,
+            distanceKm: 1,
+            moveSec,
+            paceSec: moveSec // karena jarak 1 km
+          });
 
           // split berikutnya mulai dari titik ini
           splitStartTime = tAtKm;
@@ -995,17 +994,17 @@ kmSplits.push({
       }
 
       // 3) Optional: split terakhir kalau masih ada sisa > 250 m
-    const moveSecRaw = (lastS.t - splitStartTime) / 1000;
-const moveSec    = Math.round(moveSecRaw);
-
-if (moveSec > 0 && leftoverKm > 0.05) {
-  kmSplits.push({
-    km: lastKmIndex + 1,
-    distanceKm: leftoverKm,
-    moveSec,
-    paceSec: moveSec / leftoverKm   // ini masih bisa pecahan, nanti di-format
-  });
-
+      const lastS = samples[samples.length-1];
+      if(lastS.dist!=null && lastS.dist/1000 > lastKmIndex + 0.25){
+        const leftoverKm = lastS.dist/1000 - lastKmIndex;
+        const moveSec    = (lastS.t - splitStartTime) / 1000;
+        if(moveSec>0 && leftoverKm>0.05){
+          kmSplits.push({
+            km: lastKmIndex + 1,
+            distanceKm: leftoverKm,
+            moveSec,
+            paceSec: moveSec / leftoverKm
+          });
         }
       }
     }
@@ -1837,8 +1836,6 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
-
-
 
 
 
