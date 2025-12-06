@@ -150,6 +150,7 @@ body::after{
 .chip-interval{border-color:#ff6a7f80;}
 .chip-long{border-color:#b0ff4d80;}
 .chip-rest{border-color:#b0b0cc80;}
+.chip-strength{border-color:#ffd84a80;}
 .chip-active{opacity:1;box-shadow:0 0 10px #00eaff90;border-color:#00eaff;}
 
 /* CALENDAR */
@@ -231,7 +232,12 @@ body::after{
 
 .num{font-size:16px;font-weight:700;color:#ffffff;}
 .type-label{margin-top:2px;font-size:12px;font-weight:600;}
-.easy{color:#4ddfff;}.tempo{color:#ff8dff;}.interval{color:#ff6a7f;}.longrun{color:#b0ff4d;}.off{color:#9a9ab0;}
+.easy{color:#4ddfff;}
+.tempo{color:#ff8dff;}
+.interval{color:#ff6a7f;}
+.longrun{color:#b0ff4d;}
+.off{color:#9a9ab0;}
+.strength{color:#ffd84a;}
 .pace{font-size:11px;margin-top:3px;color:#a8dfff;}
 .pace span{font-weight:600;}
 
@@ -338,6 +344,33 @@ canvas{
   color:#00eaff;
 }
 .modal-sub{font-size:12px;color:#d6e6ff;margin-top:4px;margin-bottom:8px;}
+
+/* STRENGTH BLOCK */
+.strength-block{
+  margin-top:6px;
+  padding:8px 10px;
+  background:rgba(8,8,24,0.96);
+  border-radius:10px;
+  border:1px dashed rgba(255,216,74,0.9);
+  box-shadow:0 0 12px rgba(255,216,74,0.35);
+}
+.strength-title{
+  font-size:11px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:#ffd84a;
+  margin-bottom:4px;
+}
+.strength-block ul{
+  margin:0;
+  padding-left:18px;
+  font-size:12px;
+  color:#fff9d4;
+}
+.strength-block li{
+  margin-bottom:2px;
+}
+
 .modal-grid{
   margin-top:6px;
   display:grid;
@@ -400,6 +433,10 @@ canvas{
 .bubble-rest{
   background:radial-gradient(circle at 0 0,#edf0ff,#d4d8ff);
   color:#000624;
+}
+.bubble-strength{
+  background:radial-gradient(circle at 0 0,#fff7d0,#ffe27a);
+  color:#211800;
 }
 @keyframes popBubble{
   0%{transform:scale(.9) translateY(8px) translateX(4px);box-shadow:0 0 10px #00eaff80;}
@@ -540,6 +577,7 @@ canvas{
     <div class="chip chip-tempo" data-type="Tempo"><span class="icon">🔥</span>Tempo</div>
     <div class="chip chip-interval" data-type="Interval"><span class="icon">⚡</span>Interval</div>
     <div class="chip chip-long" data-type="Long"><span class="icon">🛸</span>Long</div>
+    <div class="chip chip-strength" data-type="Strength"><span class="icon">🏋️</span>Strength</div>
     <div class="chip chip-rest" data-type="Rest"><span class="icon">💤</span>Rest</div>
   </div>
 </div>
@@ -598,6 +636,10 @@ canvas{
   <div class="modal-card">
     <div id="modalTitle" class="modal-title"></div>
     <div id="modalSub" class="modal-sub"></div>
+
+    <!-- blok strength muncul khusus hari Strength -->
+    <div id="strengthBlock" class="strength-block" style="display:none;"></div>
+
     <div class="modal-grid">
       <div>
         <label>Pace aktual (mm:ss per km)</label>
@@ -661,6 +703,9 @@ canvas{
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+// === STORAGE KEY KHUSUS 10K JANUARI ===
+const STORAGE_KEY = 'runnaUltraLogs_10K_JAN';
+
 // TARGET KM PER MINGGU (boleh kamu ubah)
 const WEEKLY_TARGET = 30; // km per minggu
 
@@ -706,11 +751,18 @@ const plan = [
   },
   {
     day: 6,
-    type: "Rest",
-    title: "Rest / Strength Ringan",
+    type: "Strength",
+    title: "Strength Ringan — Kaki & Core",
     pace: "-",
-    focus: "Istirahat atau strength ringan (core, kaki) 10–15 menit di rumah.",
-    block: "rest"
+    focus: "Istirahat lari, isi dengan strength 10–15 menit di rumah. Fokus otot penopang lari.",
+    block: "support",
+    strength: [
+      "Bodyweight squat 3×12",
+      "Reverse lunge 3×10 per kaki",
+      "Glute bridge 3×12",
+      "Calf raise di tangga 3×12",
+      "Plank 3×30 detik"
+    ]
   },
   {
     day: 7,
@@ -740,11 +792,17 @@ const plan = [
   /* WEEK 2 — BUILD (10–16) */
   {
     day: 10,
-    type: "Rest",
-    title: "Rest / Jalan Santai",
+    type: "Strength",
+    title: "Strength + Jalan Santai (Upper & Core)",
     pace: "-",
-    focus: "Boleh full rest atau jalan santai 20–30 menit. Biarkan badan nyerap beban minggu lalu.",
-    block: "rest"
+    focus: "Recovery aktif: jalan santai 20–30 menit + strength ringan upper body & core.",
+    block: "support",
+    strength: [
+      "Push-up (tembok/meja) 3×8–10",
+      "Row dengan resistance band 3×12 (kalau ada)",
+      "Shoulder tap plank 3×10 per sisi",
+      "Side plank 2×20–30 detik per sisi"
+    ]
   },
   {
     day: 11,
@@ -798,11 +856,17 @@ const plan = [
   /* WEEK 3 — PEAK (17–23) */
   {
     day: 17,
-    type: "Rest",
-    title: "Rest / Mobility",
+    type: "Strength",
+    title: "Mobility + Glute Day",
     pace: "-",
-    focus: "Foam roll, stretching ringan. Bantu badan siap ke minggu puncak.",
-    block: "rest"
+    focus: "Fokus ke mobility & glute supaya bentuk lari stabil di minggu puncak.",
+    block: "support",
+    strength: [
+      "Dynamic leg swing (depan-belakang & samping) 2×10 per kaki",
+      "Hip circle / monster walk dengan mini band 3×10 langkah",
+      "Single-leg glute bridge 3×8–10 per kaki",
+      "Dead bug 3×10 per sisi"
+    ]
   },
   {
     day: 18,
@@ -856,11 +920,17 @@ const plan = [
   /* WEEK 4 — TAPER & RACE (24–31) */
   {
     day: 24,
-    type: "Rest",
-    title: "Rest / Jalan Ringan",
+    type: "Strength",
+    title: "Pre-Race Activation (Ringan)",
     pace: "-",
-    focus: "Turunkan beban. Boleh jalan kaki 20–30 menit supaya badan tetap 'hangat'.",
-    block: "rest"
+    focus: "Taper mode: sedikit aktivasi otot biar badan tetap 'nyala' tanpa bikin pegal.",
+    block: "support",
+    strength: [
+      "Bodyweight squat 2×10",
+      "Calf raise 2×12",
+      "Glute bridge 2×10",
+      "Plank 2×25 detik"
+    ]
   },
   {
     day: 25,
@@ -935,6 +1005,7 @@ function getTypeClass(type){
   if(type==='Interval') return 'interval';
   if(type==='Long') return 'longrun';
   if(type==='Rest') return 'off';
+  if(type==='Strength') return 'strength';
   return '';
 }
 function getTagLabel(block){
@@ -949,6 +1020,7 @@ function typeIcon(type){
   if(type==='Interval') return '⚡';
   if(type==='Long') return '🛸';
   if(type==='Rest') return '💤';
+  if(type==='Strength') return '🏋️';
   return '🏃‍♂️';
 }
 function parsePace(str){
@@ -993,11 +1065,11 @@ function rpeLabel(rpe){
   return '';
 }
 function loadLogs(){
-  try{ logs = JSON.parse(localStorage.getItem('runnaUltraLogs')||'{}'); }
+  try{ logs = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }
   catch(e){ logs = {}; }
 }
 function saveLogs(){
-  localStorage.setItem('runnaUltraLogs', JSON.stringify(logs));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
 }
 
 /* ===== TCX PARSE & MAP ===== */
@@ -1272,7 +1344,7 @@ function computeStats(){
 
   let weekDist = 0;
   let weekCount = 0;
-  const typeCount = {Easy:0,Tempo:0,Interval:0,Long:0,Rest:0};
+  const typeCount = {Easy:0,Tempo:0,Interval:0,Long:0,Rest:0,Strength:0};
   const weekDays = [];
 
   plan.forEach(p=>{
@@ -1304,6 +1376,7 @@ function computeStats(){
     if(typeCount.Tempo) parts.push(typeCount.Tempo+' Tempo');
     if(typeCount.Interval) parts.push(typeCount.Interval+' Interval');
     if(typeCount.Long) parts.push(typeCount.Long+' Long');
+    if(typeCount.Strength) parts.push(typeCount.Strength+' Strength');
     if(typeCount.Rest) parts.push(typeCount.Rest+' Rest');
     weekDetailEl.textContent =
       `Minggu ini: ${weekDist.toFixed(2)} km • `+
@@ -1541,6 +1614,19 @@ function openModalForIndex(index){
 
   document.getElementById('modalTitle').textContent = `LOG LATIHAN — ${p.day} ${PLAN_MONTH_LABEL} (${p.type})`;
   document.getElementById('modalSub').textContent = `${p.title} • Target: ${p.pace}`;
+
+  // Strength block
+  const strengthBlock = document.getElementById('strengthBlock');
+  if(p.strength && p.strength.length){
+    const items = p.strength.map(s=>`<li>${s}</li>`).join('');
+    strengthBlock.innerHTML =
+      `<div class="strength-title">STRENGTH PLAN</div><ul>${items}</ul>`;
+    strengthBlock.style.display = 'block';
+  }else{
+    strengthBlock.style.display = 'none';
+    strengthBlock.innerHTML = '';
+  }
+
   document.getElementById('modalPace').value = dayLog.paceSec!=null?formatPace(dayLog.paceSec):'';
   document.getElementById('modalHR').value = dayLog.hr!=null?dayLog.hr:'';
   document.getElementById('modalDist').value = dayLog.dist!=null?dayLog.dist:'';
@@ -1560,7 +1646,7 @@ function closeModal(){
 }
 
 function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
-  if(paceSec==null && hrVal==null && (distVal==null || isNaN(distVal))){
+  if(paceSec==null && hrVal==null && (distVal==null || isNaN(distVal)) && p.type!=='Strength'){
     return `Log ${p.day} ${PLAN_MONTH_LABEL} sudah tersimpan. Next step: upload TCX atau isi pace/jarak biar coach report makin pedes tapi akurat 😉`;
   }
 
@@ -1590,6 +1676,8 @@ function buildCoachBubbleMessage(p, paceSec, hrVal, distVal, rpeStr, shoeStr){
     }
   }else if(p.type==='Rest'){
     lines.push('Rest day dicatat. Recovery itu latihan, bukan malas. Good choice 😌');
+  }else if(p.type==='Strength'){
+    lines.push('Strength day ✔︎. Otot penopang lari diajak kerja, meski nggak ada GPS yang gerak.');
   }
 
   if(hrVal){
@@ -1638,7 +1726,7 @@ function showBubble(msg,type){
   b.className = 'bubble';
   if(type){
     const t = type.toLowerCase();
-    if(['easy','tempo','interval','long','rest'].includes(t)){
+    if(['easy','tempo','interval','long','rest','strength'].includes(t)){
       b.classList.add('bubble-'+t);
     }
   }
