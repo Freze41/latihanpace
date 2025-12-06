@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rama Runna Pro — Landing</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-main:#050510;
+      --bg-card:#0b0b18;
+      --bg-panel:#111126;
+      --accent-cyan:#00eaff;
+      --accent-magenta:#ff4dff;
+      --accent-lime:#b0ff4d;
+      --border-soft:#22223a;
+      --text-soft:#d6e6ff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 10% 0%,#151532 0,#050510 35%,#02020a 100%);
+      font-family:'Rajdhani',sans-serif;
+      color:#e8ffff;
+      overflow-x:hidden;
+    }
+
+    /* Grid overlay */
+    body::after{
+      content:"";position:fixed;inset:0;pointer-events:none;
+      opacity:0.18;
+      background-image:
+        linear-gradient(90deg,rgba(0,234,255,0.18) 1px,transparent 1px),
+        linear-gradient(180deg,rgba(255,77,255,0.16)1px,transparent 1px);
+      background-size:60px 60px;
+      mix-blend-mode:screen;
+      z-index:-1;
+    }
+
+    a{text-decoration:none;color:inherit;}
+
+    /* Header */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 6vw 8px;
+      border-bottom:1px solid #14142c;
+      background:linear-gradient(90deg,#05050c,#0c0c1c,#05050c);
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(14px);
+    }
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-family:'Orbitron',sans-serif;
+    }
+    .logo-icon{
+      font-size:26px;
+      text-shadow:0 0 12px #ffd84a;
+    }
+    .logo-text-main{
+      font-size:18px;
+      letter-spacing:0.14em;
+    }
+    .logo-text-sub{
+      font-size:9px;
+      letter-spacing:0.22em;
+      color:#7bdcff;
+      text-transform:uppercase;
+    }
+
+    nav{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      font-size:11px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+    }
+    .nav-link{
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid transparent;
+      color:#cfd7ff;
+      cursor:pointer;
+    }
+    .nav-link:hover{
+      border-color:rgba(0,234,255,0.8);
+      background:rgba(0,234,255,0.08);
+    }
+    .nav-cta{
+      border-color:rgba(255,77,255,0.9);
+      background:linear-gradient(90deg,rgba(0,234,255,0.1),rgba(255,77,255,0.2));
+      box-shadow:0 0 12px rgba(255,77,255,0.6);
+    }
+
+    @media (max-width:720px){
+      header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+      }
+      nav{
+        width:100%;
+        justify-content:flex-end;
+        flex-wrap:wrap;
+      }
+    }
+
+    /* Hero */
+    .hero{
+      padding:26px 6vw 18px;
+      display:grid;
+      grid-template-columns: minmax(0,1.2fr) minmax(0,1fr);
+      gap:32px;
+      align-items:center;
+    }
+    @media (max-width:860px){
+      .hero{
+        grid-template-columns:1fr;
+        padding-top:22px;
+      }
+    }
+
+    .hero-kiri-title{
+      font-family:'Orbitron',sans-serif;
+      font-size:11px;
+      letter-spacing:0.24em;
+      text-transform:uppercase;
+      color:#8ca0ff;
+      margin-bottom:6px;
+    }
+    .hero-kiri h1{
+      font-family:'Orbitron',sans-serif;
+      font-size:32px;
+      line-height:1.25;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      text-shadow:0 0 14px rgba(0,234,255,0.7);
+      margin-bottom:10px;
+    }
+    .hero-kiri h1 span.cyan{color:var(--accent-cyan);}
+    .hero-kiri h1 span.magenta{color:var(--accent-magenta);}
+    .hero-kiri p{
+      font-size:14px;
+      color:var(--text-soft);
+      max-width:460px;
+      line-height:1.6;
+      margin-bottom:14px;
+    }
+
+    .hero-badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:14px;
+      font-size:11px;
+    }
+    .badge{
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid #2a2a44;
+      background:rgba(5,5,25,0.8);
+      color:#d6e6ff;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+    }
+    .badge span.icon{font-size:13px;}
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .btn-main,
+    .btn-ghost{
+      padding:8px 16px;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      cursor:pointer;
+      border:1px solid transparent;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn-main{
+      background:linear-gradient(90deg,var(--accent-cyan),var(--accent-magenta));
+      color:#02020a;
+      box-shadow:0 0 14px rgba(0,234,255,0.9);
+    }
+    .btn-main:hover{
+      box-shadow:0 0 20px rgba(0,234,255,1);
+      transform:translateY(-1px);
+    }
+    .btn-ghost{
+      border-color:rgba(0,234,255,0.7);
+      color:#dffbff;
+      background:rgba(5,5,25,0.4);
+    }
+    .btn-ghost:hover{
+      background:rgba(0,234,255,0.08);
+    }
+    .btn-main span.arrow,
+    .btn-ghost span.arrow{
+      font-size:14px;
+    }
+
+    .hero-caption{
+      font-size:11px;
+      color:#9ca8ff;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .hero-caption span.dot{
+      width:7px;height:7px;border-radius:50%;
+      background:#18ff92;
+      box-shadow:0 0 10px #18ff92;
+    }
+
+    /* Hero right: running animation */
+    .hero-kanan{
+      position:relative;
+      padding:14px 16px 18px;
+      border-radius:18px;
+      background:radial-gradient(circle at 20% 0%,#1f1f48 0,#050510 60%);
+      border:1px solid rgba(0,234,255,0.4);
+      box-shadow:
+        0 0 0 1px rgba(0,234,255,0.1),
+        0 0 28px rgba(0,234,255,0.45),
+        0 0 40px rgba(255,77,255,0.35);
+      overflow:hidden;
+    }
+    .hero-kanan-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      color:#9feaff;
+      margin-bottom:4px;
+    }
+    .hero-kanan-title{
+      font-size:14px;
+      color:#e8ffff;
+      margin-bottom:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+    }
+    .hero-chip{
+      padding:3px 8px;
+      border-radius:999px;
+      background:#050510;
+      border:1px solid rgba(255,216,74,0.9);
+      font-size:10px;
+      color:#ffeeb3;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+    }
+
+    .track-scene{
+      position:relative;
+      margin-top:4px;
+      padding:16px 10px 14px;
+      border-radius:14px;
+      background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.15),transparent 55%);
+      overflow:hidden;
+    }
+
+    .track-lines{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      gap:6px;
+      pointer-events:none;
+    }
+    .track-line{
+      height:2px;
+      border-radius:999px;
+      background:linear-gradient(90deg,transparent,rgba(0,234,255,0.8),rgba(255,77,255,0.8),transparent);
+      opacity:0.6;
+    }
+    .track-line:nth-child(2){transform:scaleX(0.9);opacity:0.5;}
+    .track-line:nth-child(1){transform:scaleX(0.8);opacity:0.4;}
+
+    .runner-wrap{
+      position:relative;
+      height:120px;
+      overflow:hidden;
+    }
+    .runner-emoji{
+      position:absolute;
+      bottom:22px;
+      left:-15%;
+      font-size:64px;
+      text-shadow:0 0 12px rgba(0,0,0,0.7);
+      filter:drop-shadow(0 0 10px rgba(0,234,255,0.9));
+      animation:runnerMove 3.4s linear infinite;
+    }
+    .runner-ghost{
+      position:absolute;
+      bottom:22px;
+      left:-20%;
+      font-size:64px;
+      opacity:0.17;
+      filter:blur(1px);
+      animation:runnerMove 3.4s linear infinite;
+      animation-delay:-0.18s;
+    }
+
+    @keyframes runnerMove{
+      0%{transform:translateX(0) translateY(0);}
+      40%{transform:translateX(70vw) translateY(-4px);}
+      60%{transform:translateX(70vw) translateY(0);}
+      100%{transform:translateX(0) translateY(0);}
+    }
+
+    .speed-bars{
+      position:absolute;
+      top:20px;
+      right:-40px;
+      width:140px;
+      height:140px;
+      border-radius:50%;
+      border:1px dashed rgba(0,234,255,0.4);
+      box-shadow:0 0 22px rgba(0,234,255,0.5);
+      opacity:0.3;
+      pointer-events:none;
+    }
+
+    .hero-kanan-metrics{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      font-size:11px;
+    }
+    .metric{
+      flex:1 1 80px;
+      padding:6px 8px;
+      border-radius:10px;
+      background:#050512;
+      border:1px solid #2c2c4f;
+    }
+    .metric-label{
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      color:#9ca8ff;
+      margin-bottom:2px;
+      font-size:10px;
+    }
+    .metric-value{
+      font-size:13px;
+      font-weight:600;
+    }
+    .metric-desc{
+      font-size:10px;
+      color:#bac6ff;
+      margin-top:1px;
+    }
+
+    /* Section cards */
+    .section{
+      padding:8px 6vw 32px;
+    }
+    .section-title{
+      font-size:12px;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      color:#8ca0ff;
+      margin-bottom:6px;
+    }
+    .section-sub{
+      font-size:13px;
+      color:#cfd7ff;
+      margin-bottom:14px;
+      max-width:520px;
+    }
+
+    .program-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+    @media (max-width:780px){
+      .program-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .program-card{
+      position:relative;
+      padding:14px 14px 16px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#0b0b18,#141433);
+      border:1px solid rgba(0,234,255,0.45);
+      box-shadow:0 0 22px rgba(0,234,255,0.35);
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .program-card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:radial-gradient(circle at 0 0,rgba(0,234,255,0.4),transparent 55%);
+      opacity:0;
+      transform:translateX(-30%);
+      transition:opacity 0.28s ease, transform 0.28s ease;
+    }
+    .program-card:hover{
+      transform:translateY(-3px);
+      box-shadow:
+        0 0 0 1px rgba(0,234,255,0.7),
+        0 0 28px rgba(0,234,255,0.9),
+        0 0 34px rgba(255,77,255,0.7);
+      border-color:rgba(255,77,255,0.9);
+    }
+    .program-card:hover::before{
+      opacity:1;
+      transform:translateX(0);
+    }
+
+    .program-tagline{
+      font-size:10px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:#9feaff;
+      margin-bottom:4px;
+    }
+    .program-title{
+      font-size:18px;
+      font-family:'Orbitron',sans-serif;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      margin-bottom:4px;
+    }
+    .program-title span.num{color:var(--accent-cyan);}
+    .program-meta{
+      font-size:11px;
+      color:#cfd7ff;
+      margin-bottom:8px;
+    }
+    .program-meta strong{color:#ffe58f;}
+    .program-pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:8px;
+      font-size:10px;
+    }
+    .pill{
+      padding:2px 7px;
+      border-radius:999px;
+      border:1px solid #2c2c4f;
+      background:#050515;
+      color:#dfe6ff;
+    }
+    .pill-key{border-color:#ff8dbb;color:#ffd7eb;}
+    .pill-easy{border-color:#74efff;color:#dbfaff;}
+    .pill-long{border-color:#b0ff4d;color:#f4ffe0;}
+
+    .program-bottom{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:4px;
+    }
+    .program-note{
+      font-size:11px;
+      color:#abb8ff;
+      max-width:220px;
+    }
+    .program-link{
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:#fefefe;
+    }
+    .program-link span.arrow{
+      font-size:14px;
+      transform:translateY(1px);
+    }
+
+    /* Features short list */
+    .feature-list{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      font-size:11px;
+    }
+    @media (max-width:880px){
+      .feature-list{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+    @media (max-width:620px){
+      .feature-list{
+        grid-template-columns:1fr;
+      }
+    }
+    .feature-item{
+      padding:8px 9px;
+      border-radius:12px;
+      background:#060612;
+      border:1px solid #232345;
+      color:#cfd7ff;
+    }
+    .feature-item strong{
+      display:block;
+      margin-bottom:3px;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
+      color:#9feaff;
+    }
+
+    /* AI Coach Interactive Section */
+    .ai-section{
+      margin-top:24px;
+      padding:14px 14px 16px;
+      border-radius:18px;
+      background:radial-gradient(circle at 0 0,#181842,#050510 60%);
+      border:1px solid rgba(0,234,255,0.4);
+      box-shadow:0 0 22px rgba(0,234,255,0.4);
+    }
+    .ai-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .ai-title{
+      font-size:12px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:#9feaff;
+    }
+    .ai-tag{
+      font-size:10px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,77,255,0.7);
+      background:#050510;
+      color:#ffd6ff;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+    }
+    .ai-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .ai-btn{
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid #2c2c4f;
+      background:#050515;
+      color:#dfe6ff;
+      font-size:11px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+    }
+    .ai-btn span.icon{font-size:13px;}
+    .ai-btn:hover{
+      border-color:rgba(0,234,255,0.9);
+      background:rgba(0,234,255,0.1);
+    }
+
+    .ai-output-title{
+      font-size:12px;
+      color:#fefefe;
+      margin-bottom:3px;
+      font-weight:600;
+    }
+    .ai-output-body{
+      font-size:11px;
+      color:#d0d9ff;
+      line-height:1.6;
+    }
+
+    /* AI Coach Floating Bubble */
+    .ai-bubble{
+      position:fixed;
+      right:14px;
+      bottom:18px;
+      width:240px;
+      max-width:80vw;
+      background:radial-gradient(circle at 0 0,#ffffff,#caffff);
+      color:#001018;
+      border-radius:16px;
+      box-shadow:0 0 20px rgba(0,234,255,0.9);
+      padding:8px 10px 10px;
+      font-size:11px;
+      z-index:40;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      transform:translateY(8px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .35s ease,transform .35s ease;
+    }
+    .ai-bubble.show{
+      opacity:1;
+      pointer-events:auto;
+      transform:translateY(0);
+    }
+    .ai-bubble-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+    }
+    .ai-bubble-title{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-weight:600;
+    }
+    .ai-avatar{
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at 0 0,#00eaff,#ff4dff);
+      color:#02020a;
+      font-size:13px;
+      box-shadow:0 0 8px rgba(0,234,255,0.9);
+    }
+    .ai-bubble-toggle{
+      border:none;
+      background:transparent;
+      font-size:15px;
+      cursor:pointer;
+      color:#001018;
+    }
+    .ai-bubble-text{
+      font-size:11px;
+    }
+    .ai-bubble-actions{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:2px;
+    }
+    .ai-bubble-refresh{
+      border:none;
+      background:#050515;
+      color:#e8ffff;
+      border-radius:999px;
+      padding:3px 8px;
+      font-size:10px;
+      cursor:pointer;
+    }
+
+    @media (max-width:600px){
+      .ai-bubble{
+        right:10px;
+        bottom:10px;
+      }
+    }
+
+    /* Footer */
+    footer{
+      padding:14px 6vw 18px;
+      border-top:1px solid #15152f;
+      font-size:11px;
+      color:#8a96ff;
+      display:flex;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    footer a{
+      color:#cfd7ff;
+      text-decoration:underline;
+      text-decoration-style:dotted;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏃‍♂️</div>
+    <div>
+      <div class="logo-text-main">RAMA RUNNA PRO</div>
+      <div class="logo-text-sub">CYBERPUNK TRAINING DASHBOARD</div>
+    </div>
+  </div>
+
+  <nav>
+    <a href="#programs" class="nav-link">Program</a>
+    <a href="plan5k.html" class="nav-link">5K Desember</a>
+    <a href="Plan10k.html" class="nav-link">10K Januari</a>
+    <a href="timeline.html" class="nav-link nav-cta">Session Timeline</a>
+  </nav>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-kiri">
+      <div class="hero-kiri-title">Personal training log • by Rama</div>
+      <h1>
+        Training <span class="cyan">5K</span> &amp; <span class="magenta">10K</span><br>
+        dengan nuansa <span class="cyan">neon</span> &amp; <span class="magenta">cyberpunk</span>
+      </h1>
+      <p>
+        Satu dashboard untuk semua: jadwal latihan mingguan, log harian, upload TCX yang langsung
+        ngebentuk map, pace &amp; HR graph, sampai coach report yang bacot tapi sayang sama lututmu.
+      </p>
+
+      <div class="hero-badges">
+        <div class="badge"><span class="icon">📅</span> Plan 5K Desember &amp; 10K Januari</div>
+        <div class="badge"><span class="icon">🧵</span> Session timeline ala Strava feed</div>
+        <div class="badge"><span class="icon">📈</span> Grafis pace / HR otomatis</div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="plan5k.html" class="btn-main">
+          Mulai Program 5K Desember
+          <span class="arrow">→</span>
+        </a>
+        <a href="Plan10k.html" class="btn-ghost">
+          Lihat Program 10K Januari
+          <span class="arrow">⇢</span>
+        </a>
+      </div>
+
+      <div class="hero-caption">
+        <span class="dot"></span>
+        <span>Log latihanmu di sini, bukan di notes yang suka kelewat scroll.</span>
+      </div>
+    </div>
+
+    <!-- HERO KANAN: running animation -->
+    <div class="hero-kanan">
+      <div class="hero-kanan-label">Live Preview</div>
+      <div class="hero-kanan-title">
+        <span>Runner Scene • Rama</span>
+        <span class="hero-chip">Auto TCX • Map • Stats</span>
+      </div>
+
+      <div class="track-scene">
+        <div class="track-lines">
+          <div class="track-line"></div>
+          <div class="track-line"></div>
+          <div class="track-line"></div>
+        </div>
+
+        <div class="runner-wrap">
+          <div class="runner-ghost">🏃‍♂️</div>
+          <div class="runner-emoji">🏃‍♂️</div>
+        </div>
+
+        <div class="speed-bars"></div>
+      </div>
+
+      <div class="hero-kanan-metrics">
+        <div class="metric">
+          <div class="metric-label">Target</div>
+          <div class="metric-value">5K &lt; 30′</div>
+          <div class="metric-desc">Desember fokus turunin pace, Januari lanjut 10K.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Today Session</div>
+          <div class="metric-value">Easy • 6–7 min/km</div>
+          <div class="metric-desc">Kalem dulu, yang penting konsisten, bukan kenceng sekali.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Data Source</div>
+          <div class="metric-value">TCX Upload</div>
+          <div class="metric-desc">Peta, pace, HR semua auto kebaca dari file.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRAM CARDS + AI COACH -->
+  <section id="programs" class="section">
+    <div class="section-title">Pilih program</div>
+    <div class="section-sub">
+      Dua blok latihan yang nyambung: Desember buat nge-boost 5K-mu dulu, Januari disambung
+      ke 10K biar kaki sudah kebiasaan lari agak jauh tapi tetap jinak.
+    </div>
+
+    <div class="program-grid">
+      <!-- 5K DES -->
+      <a href="plan5k.html" class="program-card">
+        <div class="program-tagline">Base → Build → Peak • Desember</div>
+        <div class="program-title"><span class="num">5K</span> Sub-30 Plan</div>
+        <div class="program-meta">
+          Fokus di kombinasi <strong>easy run</strong>, <strong>tempo pendek</strong>,
+          dan <strong>interval 200–400m</strong> buat ngedorong pace tanpa bikin badan shock.
+        </div>
+
+        <div class="program-pill-row">
+          <span class="pill pill-easy">🌙 Easy untuk bangun aerobic base</span>
+          <span class="pill pill-key">⚡ Interval &amp; tempo key session</span>
+          <span class="pill pill-long">🛸 Long run 8–10 km</span>
+        </div>
+
+        <div class="program-bottom">
+          <p class="program-note">
+            Cocok buat ngunci kebiasaan lari 3–5x per minggu dan bikin pace 5 koma sekian keliatan
+            makin realistis, bukan cuma wacana.
+          </p>
+          <span class="program-link">
+            Masuk Plan 5K
+            <span class="arrow">→</span>
+          </span>
+        </div>
+      </a>
+
+      <!-- 10K JAN -->
+      <a href="Plan10k.html" class="program-card">
+        <div class="program-tagline">Build → Specific → Race Sim • Januari</div>
+        <div class="program-title"><span class="num">10K</span> Sub-60 Plan</div>
+        <div class="program-meta">
+          Lanjutan dari Desember: mileage dinaikkan pelan, tambah
+          <strong>tempo 20–30 menit</strong> dan <strong>long 10–11 km</strong>
+          buat bikin 10K kerasa achievable.
+        </div>
+
+        <div class="program-pill-row">
+          <span class="pill pill-easy">📅 Volume naik tapi terukur</span>
+          <span class="pill pill-key">🔥 Tempo mendekati pace 10K</span>
+          <span class="pill pill-long">🏁 Race simulation 10K di akhir bulan</span>
+        </div>
+
+        <div class="program-bottom">
+          <p class="program-note">
+            Kalau 5K-mu udah mulai stabil, Januari ini jadi jembatan yang enak
+            buat lari 10K tanpa ngerasa "ini apa kok panjang banget".
+          </p>
+          <span class="program-link">
+            Masuk Plan 10K
+            <span class="arrow">→</span>
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Feature list -->
+    <div class="feature-list">
+      <div class="feature-item">
+        <strong>TCX Auto Mode</strong>
+        Upload file dari jam tangan / aplikasi, dashboard langsung baca route, durasi, jarak,
+        dan pace per km.
+      </div>
+      <div class="feature-item">
+        <strong>Interactive Map</strong>
+        Peta per tanggal, bisa pilih hari, lihat rute terakhir, dan cek sesi hari ini
+        tanpa buka Strava.
+      </div>
+      <div class="feature-item">
+        <strong>Coach Report</strong>
+        Ringkasan mingguan yang nge-recap volume, pace, HR, dan feeling
+        dengan bahasa manusia (plus sedikit roasting halus).
+      </div>
+      <div class="feature-item">
+        <strong>Session Timeline</strong>
+        Feed ala Strava mini versi kamu sendiri, tiap sesi nongol dengan mini map &amp; statistik utama.
+      </div>
+      <div class="feature-item">
+        <strong>HR &amp; Pace Trends</strong>
+        Grafik tren per minggu buat lihat apakah easy run beneran easy dan HR makin adem atau belum.
+      </div>
+      <div class="feature-item">
+        <strong>Sepatu &amp; Catatan</strong>
+        Setiap log bisa simpan sepatu apa yang dipakai dan catatan "curhat" singkat soal larinya.
+      </div>
+    </div>
+
+    <!-- AI Coach Section -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <div class="ai-title">AI Coach • Pilih tujuanmu</div>
+        <div class="ai-tag">RamaBot v1.0</div>
+      </div>
+      <div class="ai-buttons">
+        <button class="ai-btn" data-goal="start">
+          <span class="icon">🌱</span>
+          Baru mulai lari
+        </button>
+        <button class="ai-btn" data-goal="5k">
+          <span class="icon">⚡</span>
+          Mau turunin pace 5K
+        </button>
+        <button class="ai-btn" data-goal="10k">
+          <span class="icon">🛸</span>
+          Mau tembus 10K
+        </button>
+      </div>
+      <div class="ai-output">
+        <div id="aiGoalTitle" class="ai-output-title">
+          Belum pilih apa-apa — klik salah satu tombol di atas.
+        </div>
+        <div id="aiGoalBody" class="ai-output-body">
+          RamaBot bakal rekomendasiin kamu mulai dari plan 5K atau lanjut ke 10K, lengkap dengan saran
+          gaya latihan (easy/tempo/interval) biar nggak asal gas.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span id="year"></span> Rama Runna Pro · Built for your 5K &amp; 10K grind.</span>
+  <span>
+    Buka langsung dashboard: 
+    <a href="plan5k.html">Program 5K</a> ·
+    <a href="Plan10k.html">Program 10K</a> ·
+    <a href="timeline.html">Session Timeline</a>
+  </span>
+</footer>
+
+<!-- AI Coach Bubble -->
+<div id="aiBubble" class="ai-bubble">
+  <div class="ai-bubble-header">
+    <div class="ai-bubble-title">
+      <div class="ai-avatar">🤖</div>
+      <span>RamaBot · AI Coach</span>
+    </div>
+    <button id="aiBubbleToggle" class="ai-bubble-toggle" title="Tutup">×</button>
+  </div>
+  <div id="aiBubbleText" class="ai-bubble-text">
+    <!-- akan diisi via JS -->
+  </div>
+  <div class="ai-bubble-actions">
+    <button id="aiBubbleRefresh" class="ai-bubble-refresh">Ganti tips</button>
+  </div>
+</div>
+
+<script>
+  // Tahun otomatis di footer
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // AI Coach: rekomendasi program
+  const goalButtons = document.querySelectorAll('.ai-btn');
+  const aiGoalTitle = document.getElementById('aiGoalTitle');
+  const aiGoalBody  = document.getElementById('aiGoalBody');
+
+  const aiMessages = {
+    start: {
+      title: 'Rekomendasi: mulai dari 5K dulu.',
+      body: 'Kalau baru mulai lari atau masih on-off, paling aman start dari plan 5K Desember (plan5k.html). Fokus ke easy run 3–4x per minggu plus 1 sesi tempo pendek. Target utamanya bukan kenceng dulu, tapi bikin badan kebiasa lari tanpa drama cedera.'
+    },
+    "5k": {
+      title: 'Rekomendasi: gas 5K dulu, baru naik 10K.',
+      body: 'Kalau sudah bisa lari 5K tapi pace masih naik-turun, pakai plan 5K buat rapihin struktur: kombinasi easy, interval pendek, dan tempo 10–15 menit. Begitu 5K-mu stabil, Januari tinggal pindah ke Plan10k.html buat ningkatin jarak tanpa panik napas.'
+    },
+    "10k": {
+      title: 'Rekomendasi: sambung ke plan 10K Januari.',
+      body: 'Kalau 5K sudah santai dan pernah lari 7–8K, kamu siap buat 10K. Pakai Plan10k.html: tambah 1 long run 9–11 km per minggu + 1 tempo 20–30 menit. Pastikan easy run tetap easy, jangan tiap hari lari berasa race.'
+    }
+  };
+
+  goalButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const goal = btn.getAttribute('data-goal');
+      const msg  = aiMessages[goal];
+      if(!msg) return;
+      aiGoalTitle.textContent = msg.title;
+      aiGoalBody.textContent  = msg.body;
+
+      // efek kecil: highlight tombol yang dipilih
+      goalButtons.forEach(b=>b.style.borderColor='#2c2c4f');
+      btn.style.borderColor='rgba(0,234,255,0.9)';
+    });
+  });
+
+  // AI Coach Bubble tips random
+  const aiBubble      = document.getElementById('aiBubble');
+  const aiBubbleText  = document.getElementById('aiBubbleText');
+  const aiBubbleToggle= document.getElementById('aiBubbleToggle');
+  const aiBubbleRefresh=document.getElementById('aiBubbleRefresh');
+
+  const tips = [
+    'Easy run itu bukan lomba. Kalau masih bisa ngobrol, berarti pace-nya pas buat bangun aerobic base.',
+    'Kalau HR tiba-tiba tinggi padahal pace sama, cek: tidur cukup belum? Minum kurang? Atau lari jam panas?',
+    'Naikkan jarak mingguan pelan-pelan: 5–10% per minggu sudah cukup. Yang penting bukan hero week, tapi konsisten.',
+    '1 sesi interval + 1 sesi tempo per minggu sudah cukup buat progres. Sisanya biarkan easy run yang kerja.',
+    'Jangan nambah volume & intensitas sekaligus. Pilih salah satu dulu yang dinaikkan.',
+    'Sepatu enak + tidur cukup seringkali lebih ngaruh dari gadget baru yang mahal.',
+    'Kalau hari ini badan kerasa berat banget, ganti sesi jadi easy run atau jalan cepat. Dengerin badan, bukan ego.'
+  ];
+
+  function setRandomTip(){
+    const idx = Math.floor(Math.random()*tips.length);
+    aiBubbleText.textContent = tips[idx];
+  }
+
+  // buka bubble default
+  setRandomTip();
+  aiBubble.classList.add('show');
+
+  aiBubbleToggle.addEventListener('click', ()=>{
+    // toggle show/hide
+    if(aiBubble.classList.contains('show')){
+      aiBubble.classList.remove('show');
+    }else{
+      aiBubble.classList.add('show');
+    }
+  });
+
+  aiBubbleRefresh.addEventListener('click', setRandomTip);
+</script>
+
+</body>
+</html>
