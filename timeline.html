@@ -253,7 +253,7 @@ main{
   padding:4px 6px;
 }
 
-/* SPLITS PER KM */
+/* SPLITS PER KM — Strava style + LIGHTSABER */
 .splits{
   margin-top:6px;
   font-size:11px;
@@ -269,13 +269,76 @@ main{
   flex-wrap:wrap;
   gap:6px;
 }
+
+/* Pill dasar */
 .splits-pill{
-  padding:2px 8px;
+  --saber-color:#00eaff; /* default: biru-cyan */
+  position:relative;
+  padding:3px 10px;
   border-radius:999px;
   border:1px solid #2a2a44;
-  background:#060612;
+  background:#050510;
   color:#e8ffff;
   white-space:nowrap;
+  overflow:hidden;
+  box-shadow:0 0 6px rgba(0,234,255,0.4);
+}
+
+/* Bar lightsaber di belakang text */
+.splits-pill .split-bar{
+  position:absolute;
+  inset:2px;
+  border-radius:999px;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(0,0,0,0.4) 0%,
+      var(--saber-color) 18%,
+      #ffffff 50%,
+      var(--saber-color) 82%,
+      rgba(0,0,0,0.4) 100%
+    );
+  opacity:0.9;
+  mix-blend-mode:screen;
+  background-size:200% 100%;
+  animation:splitSaber 1.8s linear infinite;
+}
+
+/* Text di atas lightsaber */
+.splits-pill span{
+  position:relative;
+  z-index:1;
+  text-shadow:0 0 3px rgba(0,0,0,0.8);
+}
+
+/* Label KM */
+.splits-pill .label-km{
+  font-weight:600;
+  color:#f5f7ff;
+  margin-right:4px;
+}
+
+/* Band warna: FAST = biru, MID = ungu, SLOW = merah pekat */
+.split-band-fast{
+  --saber-color:#00aaff;
+  border-color:rgba(0,170,255,0.9);
+  box-shadow:0 0 10px rgba(0,170,255,0.9);
+}
+.split-band-mid{
+  --saber-color:#b000ff;
+  border-color:rgba(176,0,255,0.9);
+  box-shadow:0 0 10px rgba(176,0,255,0.8);
+}
+.split-band-slow{
+  --saber-color:#ff0033; /* merah pekat */
+  border-color:rgba(255,0,51,0.9);
+  box-shadow:0 0 10px rgba(255,0,51,0.9);
+}
+
+/* Animasi garis berjalan */
+@keyframes splitSaber{
+  0%{background-position:0% 50%;}
+  100%{background-position:200% 50%;}
 }
 
 /* MINI MAP + CONTROLS */
@@ -929,14 +992,48 @@ function renderTimeline(){
       comment += ` Feeling: ${rpe}.`;
     }
 
-    // SPLITS PER KM (kalau ada)
+    // SPLITS PER KM (kayak Strava + lightsaber)
     let splitsHtml = '';
-    if(Array.isArray(log.splits) && log.splits.length){
-      const items = log.splits.map(s=>{
+    if (Array.isArray(log.splits) && log.splits.length) {
+      // cari pace tercepat & terlambat di sesi ini (detik per km)
+      const paceVals = log.splits
+        .map(s => s.paceSec)
+        .filter(v => v != null && !isNaN(v) && v > 0);
+
+      const minPace = paceVals.length ? Math.min(...paceVals) : null; // paling cepat
+      const maxPace = paceVals.length ? Math.max(...paceVals) : null; // paling pelan
+
+      const items = log.splits.map(s => {
         const km = s.km;
-        const paceStr = formatPace(s.paceSec);
-        return `<span class="splits-pill">KM ${km} = ${paceStr}/km</span>`;
+        const paceSec = s.paceSec;
+        const paceStr = formatPace(paceSec);
+
+        let bandClass = 'split-band-mid'; // default: ungu (mid)
+
+        if (minPace != null && maxPace != null &&
+            paceSec != null && !isNaN(paceSec) && paceSec > 0) {
+
+          const spread = (maxPace - minPace) || 1;
+          const ratio = (paceSec - minPace) / spread;
+          // ratio 0 = tercepat (fast), 1 = terlambat (slow)
+
+          if (ratio <= 0.33) {
+            bandClass = 'split-band-fast';   // biru: cepat
+          } else if (ratio >= 0.66) {
+            bandClass = 'split-band-slow';   // merah pekat: pelan
+          } else {
+            bandClass = 'split-band-mid';    // ungu: sedang
+          }
+        }
+
+        return `
+          <span class="splits-pill ${bandClass}">
+            <span class="split-bar"></span>
+            <span class="label-km">KM ${km}</span>${paceStr} /km
+          </span>
+        `;
       }).join('');
+
       splitsHtml = `
         <div class="splits">
           <div class="splits-title">Split per km</div>
