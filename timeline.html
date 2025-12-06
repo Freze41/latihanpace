@@ -88,7 +88,7 @@ main{
   color:#a8b8ff;
 }
 
-/* FILTER PLAN */
+/* FILTER STRIP (PLAN & SHOE) */
 .filter-strip{
   display:flex;
   flex-wrap:wrap;
@@ -251,6 +251,34 @@ main{
   border-left:3px solid #00eaff;
   border-radius:4px;
   padding:4px 6px;
+}
+
+/* SPLITS PER KM */
+.splits{
+  margin-top:6px;
+  font-size:11px;
+}
+.splits-title{
+  color:#9fa8ff;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  margin-bottom:2px;
+}
+.splits-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.splits-pill{
+  padding:2px 6px;
+  border-radius:999px;
+  border:1px solid #2a2a44;
+  background:#060612;
+  color:#e8ffff;
+}
+.splits-pill .label-km{
+  color:#9fa8ff;
+  margin-right:2px;
 }
 
 /* MINI MAP + CONTROLS */
@@ -416,12 +444,16 @@ footer{
     <p>Feed semua sesi yang sudah kamu log — lengkap dengan mini map & animasi rute ala “video”, tapi warna tetap cyberpunk.</p>
   </div>
 
+  <!-- FILTER PLAN -->
   <div class="filter-strip">
     <span class="filter-label">PLAN</span>
     <button class="filter-chip filter-active" data-filter="all">Semua</button>
     <button class="filter-chip" data-filter="5K_DEC">5K Desember</button>
     <button class="filter-chip" data-filter="10K_JAN">10K Januari</button>
   </div>
+
+  <!-- FILTER SEPATU (dibangun dinamis lewat JS) -->
+  <div class="filter-strip" id="shoeFilterStrip"></div>
 
   <div id="summary" class="summary-strip"></div>
 
@@ -436,7 +468,7 @@ footer{
 
 <footer>
   Data diambil dari localStorage:  
-  <code>runnaUltraLogs_5K_DEC</code> / <code>runnaUltraLogs_10K_JAN</code> (plus route jika ada).  
+  <code>runnaUltraLogs_5K_DEC</code> / <code>runnaUltraLogs_10K_JAN</code> (plus route & splits jika ada).  
   Edit log & upload TCX tetap dari masing-masing kalender plan.
 </footer>
 
@@ -448,11 +480,11 @@ footer{
     <div class="plan-options">
       <button class="plan-option-btn" data-target="plan5k.html">
         <span class="label-main">5K Desember</span>
-        <span class="label-sub">Fokus: 5K sub-30 • Bulan Des</span>
+        <span class="label-sub">Fokus: 5K sub-30 • 3–31 Des</span>
       </button>
       <button class="plan-option-btn" data-target="Plan10k.html">
         <span class="label-main">10K Januari</span>
-        <span class="label-sub">Fokus: 10K progress • Bulan Jan</span>
+        <span class="label-sub">Fokus: 10K progress • 1–31 Jan</span>
       </button>
     </div>
     <button id="planModalClose" class="plan-modal-close">Tutup</button>
@@ -482,7 +514,7 @@ const PLANS = [
   }
 ];
 
-/* ===== PLAN 5K DESEMBER (versi ringkas tapi akurat) ===== */
+/* ===== PLAN 5K DESEMBER (ringkas) ===== */
 const PLAN_5K_DES = [
   // WEEK 1 (3–9)
   {day:3,  type:'Easy',     title:'Easy Run 30 menit',           pace:'7:10–7:40', block:'support'},
@@ -524,6 +556,7 @@ const LOG_STORES = {};    // per planId
 const ROUTE_STORES = {};  // per planId
 let ENTRIES = [];         // gabungan semua plan
 let currentFilter = 'all';
+let currentShoeFilter = 'all';
 const mapStates = {};     // key: planId_day
 
 /* ===== UTIL ===== */
@@ -576,7 +609,7 @@ function findPlanMeta(planId, day){
   if(planId==='5K_DEC'){
     return PLAN_5K_DES.find(p=>p.day===day) || null;
   }
-  // Plan 10K belum didefinisikan di sini → null (generic)
+  // Plan 10K belum dispesifikkan → generic saja
   return null;
 }
 
@@ -649,6 +682,17 @@ function getRouteLatLngs(planId, day){
   return cleanLatLngArray(pts);
 }
 
+/* ===== FILTERED ENTRIES (PLAN + SEPATU) ===== */
+function getFilteredEntries(){
+  return ENTRIES.filter(e=>{
+    if(currentFilter!=='all' && e.planId!==currentFilter) return false;
+    if(currentShoeFilter!=='all'){
+      if((e.log.shoe || '') !== currentShoeFilter) return false;
+    }
+    return true;
+  });
+}
+
 /* ===== SUMMARY ===== */
 function computeStats(entries){
   let totalDist = 0;
@@ -680,9 +724,78 @@ function computeStats(entries){
   return {totalDist,bestPace,avgHR:countHR?Math.round(sumHR/countHR):null,hardCount,shoeDist};
 }
 
+/* WEEKLY MILEAGE PEAK */
+function getWeekIndexForPlan(planId, day){
+  if(planId==='5K_DEC'){
+    return Math.floor((day-3)/7); // 3–9, 10–16, dst
+  }
+  // default: minggu berbasis 1–7, 8–14, dst
+  return Math.floor((day-1)/7);
+}
+function getWeekRangeForPlan(planMeta, weekIdx){
+  const baseStart = (planMeta && planMeta.id==='5K_DEC') ? 3 : 1;
+  const startDay = baseStart + weekIdx*7;
+  const endDay = Math.min(31,startDay+6);
+  const month = planMeta ? planMeta.monthLabel : '';
+  return {startDay,endDay,monthLabel:month};
+}
+function computePeakWeek(planId, entriesForPlan){
+  const weekDist = {};
+  entriesForPlan.forEach(e=>{
+    const {log,day} = e;
+    if(log.dist==null || isNaN(log.dist)) return;
+    const wIdx = getWeekIndexForPlan(planId,day);
+    weekDist[wIdx] = (weekDist[wIdx] || 0) + log.dist;
+  });
+  const weekKeys = Object.keys(weekDist);
+  if(!weekKeys.length) return null;
+  let bestIdx = null;
+  let bestDist = 0;
+  weekKeys.forEach(k=>{
+    const idx = parseInt(k,10);
+    const d = weekDist[k];
+    if(d>bestDist){
+      bestDist = d;
+      bestIdx = idx;
+    }
+  });
+  if(bestIdx==null) return null;
+  const pm = PLANS.find(p=>p.id===planId) || {id:planId,monthLabel:''};
+  const range = getWeekRangeForPlan(pm,bestIdx);
+  return {
+    weekIndex:bestIdx,
+    dist:bestDist,
+    startDay:range.startDay,
+    endDay:range.endDay,
+    monthLabel:range.monthLabel
+  };
+}
+
+/* ===== SHOE FILTER UI ===== */
+function renderShoeFilter(){
+  const strip = document.getElementById('shoeFilterStrip');
+  if(!strip) return;
+  const shoeNames = Array.from(new Set(
+    ENTRIES.map(e=>e.log.shoe).filter(Boolean)
+  ));
+  if(!shoeNames.length){
+    strip.style.display = 'none';
+    return;
+  }
+  strip.style.display = 'flex';
+  let html = '<span class="filter-label">SEPATU</span>';
+  html += '<button class="filter-chip shoe-chip filter-active" data-shoe="all">Semua</button>';
+  shoeNames.forEach(name=>{
+    const safe = String(name).replace(/"/g,'&quot;');
+    html += `<button class="filter-chip shoe-chip" data-shoe="${safe}">${safe}</button>`;
+  });
+  strip.innerHTML = html;
+}
+
+/* ===== SUMMARY RENDER ===== */
 function renderSummary(){
   const summaryEl = document.getElementById('summary');
-  const filtered = ENTRIES.filter(e=> currentFilter==='all' || e.planId===currentFilter);
+  const filtered = getFilteredEntries();
   summaryEl.innerHTML = '';
 
   if(filtered.length===0){
@@ -706,26 +819,34 @@ function renderSummary(){
     badges.push(`<span class="badge">Sesi keras: ${stats.hardCount}× • balance oke</span>`);
   }
 
-  // top sepatu (max 2) untuk filter ini
-  const shoeNames = Object.keys(stats.shoeDist);
-  if(shoeNames.length){
-    const top = shoeNames
-      .map(name=>({name,dist:stats.shoeDist[name]}))
-      .sort((a,b)=>b.dist-a.dist)
-      .slice(0,2);
-    top.forEach(s=>{
-      badges.push(`<span class="badge">Sepatu ${s.name}: ${s.dist.toFixed(1)} km</span>`);
-    });
-  }
-
-  // kalau filter "all" → kasih mini badge per-plan
+  // Per-plan badges + peak week
   if(currentFilter==='all'){
     PLANS.forEach(pm=>{
       const planEntries = filtered.filter(e=>e.planId===pm.id);
       if(!planEntries.length) return;
       const st = computeStats(planEntries);
-      badges.push(`<span class="badge badge-plan">${pm.short}: ${st.totalDist.toFixed(1)} km • ${planEntries.length} sesi</span>`);
+      const peak = computePeakWeek(pm.id,planEntries);
+      if(peak && peak.dist>0){
+        badges.push(
+          `<span class="badge badge-plan">${pm.short}: ${st.totalDist.toFixed(1)} km • ${planEntries.length} sesi • Minggu tertinggi ${peak.startDay}–${peak.endDay} ${peak.monthLabel} (${peak.dist.toFixed(1)} km)</span>`
+        );
+      }else{
+        badges.push(
+          `<span class="badge badge-plan">${pm.short}: ${st.totalDist.toFixed(1)} km • ${planEntries.length} sesi</span>`
+        );
+      }
     });
+  }else{
+    const pm = PLANS.find(p=>p.id===currentFilter);
+    if(pm){
+      const planEntries = filtered;
+      const peak = computePeakWeek(pm.id,planEntries);
+      if(peak && peak.dist>0){
+        badges.push(
+          `<span class="badge badge-plan">Minggu mileage tertinggi: ${peak.startDay}–${peak.endDay} ${peak.monthLabel} • ${peak.dist.toFixed(1)} km</span>`
+        );
+      }
+    }
   }
 
   summaryEl.innerHTML = badges.join('');
@@ -745,7 +866,7 @@ function renderTimeline(){
     delete mapStates[key];
   });
 
-  const filtered = ENTRIES.filter(e=> currentFilter==='all' || e.planId===currentFilter);
+  const filtered = getFilteredEntries();
 
   if(filtered.length===0){
     emptyEl.style.display = 'block';
@@ -802,9 +923,26 @@ function renderTimeline(){
     }else{
       comment = 'Sesi dari log plan ini. Detail jenis sesi nggak tersimpan, tapi datanya tetap kepake buat lihat progres.';
     }
-
     if(rpe){
       comment += ` Feeling: ${rpe}.`;
+    }
+
+    // SPLITS PER KM (kalau ada)
+    let splitsHtml = '';
+    if(Array.isArray(log.splits) && log.splits.length){
+      const items = log.splits.map(s=>{
+        const km = s.km;
+        const paceStr = formatPace(s.paceSec);
+        return `<span class="splits-pill"><span class="label-km">KM ${km}</span>${paceStr} /km</span>`;
+      }).join('');
+      splitsHtml = `
+        <div class="splits">
+          <div class="splits-title">Split per km</div>
+          <div class="splits-row">
+            ${items}
+          </div>
+        </div>
+      `;
     }
 
     html += `
@@ -839,6 +977,7 @@ function renderTimeline(){
               ${comment}
               ${note ? `<br><span class="label">Catatan:</span> ${note}` : ''}
             </div>
+            ${splitsHtml}
             <div class="mini-map-wrap">
               <div class="map-controls">
                 <button class="map-btn anim-btn" data-plan="${planId}" data-day="${day}" ${hasRoute ? '' : 'disabled'}>
@@ -957,17 +1096,29 @@ function stopAnimation(planId, day, btn){
 
 /* ===== EVENT HANDLER ===== */
 document.addEventListener('click', e=>{
-  // filter chip
-  const chip = e.target.closest('.filter-chip');
-  if(chip){
-    const val = chip.dataset.filter;
+  // PLAN FILTER
+  const planChip = e.target.closest('.filter-chip[data-filter]');
+  if(planChip){
+    const val = planChip.dataset.filter;
     if(val){
       currentFilter = val;
-      document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('filter-active'));
-      chip.classList.add('filter-active');
+      document.querySelectorAll('.filter-chip[data-filter]').forEach(c=>c.classList.remove('filter-active'));
+      planChip.classList.add('filter-active');
       renderSummary();
       renderTimeline();
     }
+    return;
+  }
+
+  // SHOE FILTER
+  const shoeChip = e.target.closest('.filter-chip[data-shoe]');
+  if(shoeChip){
+    const val = shoeChip.dataset.shoe || 'all';
+    currentShoeFilter = val;
+    document.querySelectorAll('.filter-chip[data-shoe]').forEach(c=>c.classList.remove('filter-active'));
+    shoeChip.classList.add('filter-active');
+    renderSummary();
+    renderTimeline();
     return;
   }
 
@@ -1018,6 +1169,7 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
 /* ===== INIT ===== */
 (function init(){
   loadAllData();
+  renderShoeFilter();
   renderSummary();
   renderTimeline();
 })();
@@ -1025,4 +1177,3 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
 
 </body>
 </html>
-
