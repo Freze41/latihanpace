@@ -253,7 +253,7 @@ main{
   padding:4px 6px;
 }
 
-/* SPLITS PER KM — Strava style + LIGHTSABER */
+/* SPLITS PER KM — KM terpisah, lightsaber bar sendiri */
 .splits{
   margin-top:6px;
   font-size:11px;
@@ -266,56 +266,64 @@ main{
 }
 .splits-row{
   display:flex;
-  flex-wrap:wrap;
-  gap:6px;
+  flex-direction:column;
+  gap:4px;
 }
 
-/* Pill dasar */
-.splits-pill{
-  --saber-color:#00eaff; /* default: biru-cyan */
+/* Satu baris split: KM | BAR | pace */
+.splits-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.splits-km{
+  width:52px;
+  text-align:right;
+  font-weight:600;
+  color:#f5f7ff;
+}
+
+.splits-pace{
+  font-variant-numeric:tabular-nums;
+  color:#d6e6ff;
+  font-size:10px;
+  opacity:0.85;
+}
+
+/* Shell garis */
+.splits-bar-shell{
+  flex:1;
   position:relative;
-  padding:3px 10px;
+  height:10px;
   border-radius:999px;
+  background:#060612;
   border:1px solid #2a2a44;
-  background:#050510;
-  color:#e8ffff;
-  white-space:nowrap;
   overflow:hidden;
-  box-shadow:0 0 6px rgba(0,234,255,0.4);
+  box-shadow:0 0 4px rgba(0,0,0,0.6);
 }
 
-/* Bar lightsaber di belakang text */
-.splits-pill .split-bar{
+/* Isi garis lightsaber */
+.splits-bar-core{
   position:absolute;
-  inset:2px;
+  top:1px;
+  bottom:1px;
+  left:0;
+  width:var(--bar-fill,100%);
   border-radius:999px;
   background:
     linear-gradient(
       120deg,
       rgba(0,0,0,0.4) 0%,
-      var(--saber-color) 18%,
+      var(--saber-color, #00eaff) 18%,
       #ffffff 50%,
-      var(--saber-color) 82%,
+      var(--saber-color, #00eaff) 82%,
       rgba(0,0,0,0.4) 100%
     );
-  opacity:0.9;
-  mix-blend-mode:screen;
   background-size:200% 100%;
   animation:splitSaber 1.8s linear infinite;
-}
-
-/* Text di atas lightsaber */
-.splits-pill span{
-  position:relative;
-  z-index:1;
-  text-shadow:0 0 3px rgba(0,0,0,0.8);
-}
-
-/* Label KM */
-.splits-pill .label-km{
-  font-weight:600;
-  color:#f5f7ff;
-  margin-right:4px;
+  opacity:0.95;
+  mix-blend-mode:screen;
 }
 
 /* Band warna: FAST = biru, MID = ungu, SLOW = merah pekat */
@@ -992,45 +1000,51 @@ function renderTimeline(){
       comment += ` Feeling: ${rpe}.`;
     }
 
-    // SPLITS PER KM (kayak Strava + lightsaber)
+    // SPLITS PER KM (KM sendiri, bar sendiri)
     let splitsHtml = '';
     if (Array.isArray(log.splits) && log.splits.length) {
-      // cari pace tercepat & terlambat di sesi ini (detik per km)
       const paceVals = log.splits
         .map(s => s.paceSec)
         .filter(v => v != null && !isNaN(v) && v > 0);
 
-      const minPace = paceVals.length ? Math.min(...paceVals) : null; // paling cepat
-      const maxPace = paceVals.length ? Math.max(...paceVals) : null; // paling pelan
+      const minPace = paceVals.length ? Math.min(...paceVals) : null; // tercepat
+      const maxPace = paceVals.length ? Math.max(...paceVals) : null; // terlambat
 
       const items = log.splits.map(s => {
         const km = s.km;
         const paceSec = s.paceSec;
         const paceStr = formatPace(paceSec);
 
-        let bandClass = 'split-band-mid'; // default: ungu (mid)
+        let bandClass = 'split-band-mid'; // default ungu
+        let widthPercent = 100;
 
         if (minPace != null && maxPace != null &&
             paceSec != null && !isNaN(paceSec) && paceSec > 0) {
 
           const spread = (maxPace - minPace) || 1;
-          const ratio = (paceSec - minPace) / spread;
-          // ratio 0 = tercepat (fast), 1 = terlambat (slow)
+          const rawRatio = (paceSec - minPace) / spread; // 0 = cepat, 1 = lambat
+          const ratio = Math.max(0, Math.min(1, rawRatio));
 
           if (ratio <= 0.33) {
             bandClass = 'split-band-fast';   // biru: cepat
           } else if (ratio >= 0.66) {
-            bandClass = 'split-band-slow';   // merah pekat: pelan
+            bandClass = 'split-band-slow';   // merah: pelan
           } else {
-            bandClass = 'split-band-mid';    // ungu: sedang
+            bandClass = 'split-band-mid';    // ungu: mid
           }
+
+          // Panjang bar ala Strava: cepat = panjang, pelan = pendek
+          widthPercent = 60 + (1 - ratio) * 40; // 60–100%
         }
 
         return `
-          <span class="splits-pill ${bandClass}">
-            <span class="split-bar"></span>
-            <span class="label-km">KM ${km}</span>${paceStr} /km
-          </span>
+          <div class="splits-line">
+            <span class="splits-km">KM ${km}</span>
+            <div class="splits-bar-shell ${bandClass}" style="--bar-fill:${widthPercent}%">
+              <div class="splits-bar-core"></div>
+            </div>
+            <span class="splits-pace">${paceStr} /km</span>
+          </div>
         `;
       }).join('');
 
