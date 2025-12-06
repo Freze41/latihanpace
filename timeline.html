@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -49,7 +49,7 @@ header .left{
 header .icon{font-size:24px;}
 header .title-main{font-size:18px;letter-spacing:0.16em;}
 header .title-sub{font-size:10px;letter-spacing:0.18em;color:#9fdcff;text-transform:uppercase;}
-header a{
+header .back-btn{
   font-size:11px;
   color:#9feaff;
   text-decoration:none;
@@ -57,6 +57,11 @@ header a{
   border-radius:999px;
   border:1px solid #2a2a42;
   background:rgba(5,5,20,0.7);
+  cursor:pointer;
+}
+header .back-btn:hover{
+  border-color:#00eaff;
+  box-shadow:0 0 8px #00eaff80;
 }
 
 /* CONTAINER */
@@ -68,7 +73,7 @@ main{
 
 /* TIMELINE HEADER */
 .timeline-header{
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 .timeline-header h1{
   margin:0;
@@ -83,12 +88,41 @@ main{
   color:#a8b8ff;
 }
 
+/* FILTER PLAN */
+.filter-strip{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:8px 0 10px;
+  font-size:11px;
+}
+.filter-label{
+  color:#9fa8ff;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  font-size:10px;
+}
+.filter-chip{
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid #2a2a44;
+  background:#060612;
+  color:#d6e6ff;
+  cursor:pointer;
+}
+.filter-chip.filter-active{
+  border-color:#00eaff;
+  box-shadow:0 0 6px #00eaff80;
+  color:#eaffff;
+}
+
 /* SUMMARY BADGES */
 .summary-strip{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  margin:10px 0 14px;
+  margin:6px 0 14px;
   font-size:11px;
 }
 .badge{
@@ -99,6 +133,7 @@ main{
 }
 .badge-strong{border-color:#b0ff4d;background:#0c1810;color:#eaffd6;}
 .badge-warn{border-color:#ffb84d;background:#201308;color:#ffe8c4;}
+.badge-plan{border-color:#4ddfff80;background:#061520;color:#d6f7ff;}
 
 /* TIMELINE WRAP */
 .timeline{
@@ -138,6 +173,7 @@ main{
 .item-dot.interval{border-color:#ff6a7f;}
 .item-dot.long{border-color:#b0ff4d;}
 .item-dot.rest{border-color:#b0b0cc;box-shadow:none;}
+.item-dot.strength{border-color:#ffc857;}
 
 .card{
   margin-left:14px;
@@ -173,6 +209,7 @@ main{
 .type-interval{color:#ff6a7f;}
 .type-long{color:#b0ff4d;}
 .type-rest{color:#b0b0cc;}
+.type-strength{color:#ffc857;}
 
 .pill{
   font-size:10px;
@@ -186,6 +223,7 @@ main{
 .pill-support{border-color:#4ddfff80;background:#061520;color:#d6f7ff;}
 .pill-rest{border-color:#b0b0cc;background:#1a1a26;color:#f0f0ff;}
 
+/* BODY */
 .card-body{
   margin-top:6px;
   font-size:12px;
@@ -248,7 +286,11 @@ main{
   color:#9feaff;
   cursor:pointer;
 }
-.map-btn:hover{
+.map-btn[disabled]{
+  opacity:0.4;
+  cursor:default;
+}
+.map-btn:hover:not([disabled]){
   border-color:#00eaff;
   box-shadow:0 0 6px #00eaff66;
 }
@@ -276,6 +318,83 @@ footer{
   padding:12px 0 18px;
   opacity:0.8;
 }
+
+/* MODAL PILIH PLAN */
+.plan-modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(5,5,20,0.8);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+}
+.plan-modal-overlay.show{display:flex;}
+.plan-modal{
+  background:#0b0b18;
+  border-radius:14px;
+  padding:14px 16px 12px;
+  border:1px solid #2a2a44;
+  box-shadow:0 0 22px #00eaff80;
+  max-width:320px;
+  width:90%;
+  color:#e8ffff;
+}
+.plan-modal-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:13px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#00eaff;
+}
+.plan-modal-desc{
+  font-size:11px;
+  color:#cfd7ff;
+  margin-top:4px;
+  margin-bottom:10px;
+}
+.plan-options{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:8px;
+}
+.plan-option-btn{
+  width:100%;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid #2a2a44;
+  background:#060612;
+  color:#d6e6ff;
+  font-size:11px;
+  cursor:pointer;
+  text-align:left;
+}
+.plan-option-btn span.label-main{
+  font-weight:600;
+  display:block;
+}
+.plan-option-btn span.label-sub{
+  font-size:10px;
+  opacity:0.76;
+  display:block;
+}
+.plan-option-btn:hover{
+  border-color:#00eaff;
+  box-shadow:0 0 8px #00eaff80;
+}
+.plan-modal-close{
+  margin-top:2px;
+  width:100%;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid #404060;
+  background:transparent;
+  color:#cfd7ff;
+  font-size:11px;
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -288,8 +407,7 @@ footer{
       <div class="title-sub">SESSION TIMELINE + MINI MAP</div>
     </div>
   </div>
-  <!-- Ganti index.html dengan nama file halaman utama kamu -->
-  <a href="index.html">← Kembali ke Kalender</a>
+  <button id="backToCalendar" class="back-btn">← Kembali ke Kalender</button>
 </header>
 
 <main>
@@ -298,61 +416,117 @@ footer{
     <p>Feed semua sesi yang sudah kamu log — lengkap dengan mini map & animasi rute ala “video”, tapi warna tetap cyberpunk.</p>
   </div>
 
+  <div class="filter-strip">
+    <span class="filter-label">PLAN</span>
+    <button class="filter-chip filter-active" data-filter="all">Semua</button>
+    <button class="filter-chip" data-filter="5K_DEC">5K Desember</button>
+    <button class="filter-chip" data-filter="10K_JAN">10K Januari</button>
+  </div>
+
   <div id="summary" class="summary-strip"></div>
 
   <div id="timeline" class="timeline"></div>
 
   <div id="emptyState" class="empty" style="display:none;">
-    Belum ada sesi yang terekam di timeline.<br>
-    Log dulu latihan di kalender utama (plus upload TCX), lalu balik ke sini.  
+    Belum ada sesi yang terekam untuk filter ini.<br>
+    Log dulu latihan di kalender plan (5K Desember / 10K Januari), lalu balik ke sini.  
     Strava boleh keren, tapi “Rama App” ini nggak kalah lah 😏
   </div>
 </main>
 
 <footer>
-  Data diambil dari localStorage: <code>runnaUltraLogs</code> &amp; <code>runnaUltraRoutes</code>.  
-  Edit log & upload TCX tetap dari halaman utama.
+  Data diambil dari localStorage:  
+  <code>runnaUltraLogs_5K_DEC</code> / <code>runnaUltraLogs_10K_JAN</code> (plus route jika ada).  
+  Edit log & upload TCX tetap dari masing-masing kalender plan.
 </footer>
 
+<!-- MODAL PILIH PLAN -->
+<div id="planModal" class="plan-modal-overlay">
+  <div class="plan-modal">
+    <div class="plan-modal-title">Pilih Kalender Plan</div>
+    <div class="plan-modal-desc">Mau balik ke kalender yang mana?</div>
+    <div class="plan-options">
+      <button class="plan-option-btn" data-target="plank5k.html">
+        <span class="label-main">5K Desember</span>
+        <span class="label-sub">Fokus: 5K sub-30 • 3–31 Des</span>
+      </button>
+      <button class="plan-option-btn" data-target="Plan10k.html">
+        <span class="label-main">10K Januari</span>
+        <span class="label-sub">Fokus: 10K progress • 1–31 Jan</span>
+      </button>
+    </div>
+    <button id="planModalClose" class="plan-modal-close">Tutup</button>
+  </div>
+</div>
+
 <script>
-/* ======= PLAN (3–31 Des) – ringkas ======= */
-const plan = [
-  {day:3,  type:'Easy',    title:'Easy Run 30 menit',       pace:'7:10–7:40', block:'support'},
-  {day:4,  type:'Easy',    title:'Easy Run 40 menit',       pace:'7:10–7:30', block:'support'},
-  {day:5,  type:'Interval',title:'Interval 6×200m',         pace:'5:00–5:20', block:'key'},
-  {day:6,  type:'Easy',    title:'Recovery Run',            pace:'7:20–7:50', block:'support'},
-  {day:7,  type:'Tempo',   title:'Tempo 15 menit',          pace:'6:15–6:25', block:'key'},
-  {day:8,  type:'Rest',    title:'Rest Day',                pace:'-',         block:'rest'},
-  {day:9,  type:'Interval',title:'Interval 4×400m',         pace:'5:20–5:30', block:'key'},
-  {day:10, type:'Long',    title:'Long Run 8–10 km',        pace:'7:00–7:30', block:'key'},
-  {day:11, type:'Easy',    title:'Recovery Run 30 menit',   pace:'7:20–7:50', block:'support'},
-  {day:12, type:'Tempo',   title:'Steady 25–30 menit',      pace:'6:30–6:50', block:'key'},
-  {day:13, type:'Easy',    title:'Easy Run',                pace:'7:10–7:40', block:'support'},
-  {day:14, type:'Tempo',   title:'Tempo 2×8 menit',         pace:'6:00–6:15', block:'key'},
-  {day:15, type:'Rest',    title:'Rest Day',                pace:'-',         block:'rest'},
-  {day:16, type:'Interval',title:'Test 1 km',               pace:'5:10–5:40', block:'key'},
-  {day:17, type:'Easy',    title:'Easy Shakeout',           pace:'7:10–7:40', block:'support'},
-  {day:18, type:'Interval',title:'Interval 5×400m',         pace:'5:10–5:25', block:'key'},
-  {day:19, type:'Rest',    title:'Rest Day',                pace:'-',         block:'rest'},
-  {day:20, type:'Tempo',   title:'Steady 30 menit',         pace:'6:30–6:50', block:'key'},
-  {day:21, type:'Long',    title:'Long Run 9–10 km',        pace:'7:00–7:40', block:'key'},
-  {day:22, type:'Easy',    title:'Recovery Run 30 menit',   pace:'7:20–7:50', block:'support'},
-  {day:23, type:'Tempo',   title:'Tempo 12–15 menit',       pace:'6:05–6:20', block:'key'},
-  {day:24, type:'Easy',    title:'Easy Run',                pace:'7:10–7:40', block:'support'},
-  {day:25, type:'Interval',title:'Interval 6×200m',         pace:'5:00–5:20', block:'key'},
-  {day:26, type:'Interval',title:'Interval 4–6×400m',       pace:'5:05–5:20', block:'key'},
-  {day:27, type:'Long',    title:'Long Run 8–9 km',         pace:'7:00–7:30', block:'key'},
-  {day:28, type:'Rest',    title:'Rest Day',                pace:'-',         block:'rest'},
-  {day:29, type:'Easy',    title:'Easy Run',                pace:'7:10–7:40', block:'support'},
-  {day:30, type:'Tempo',   title:'Tempo 2×10 menit',        pace:'6:00–6:10', block:'key'},
-  {day:31, type:'Interval',title:'Final Test 1 km',         pace:'4:50–5:20', block:'key'}
+/* ===== META PLAN ===== */
+const PLANS = [
+  {
+    id:'5K_DEC',
+    label:'5K Desember',
+    short:'5K Des',
+    monthLabel:'Des',
+    logsKey:'runnaUltraLogs_5K_DEC',
+    routesKey:'runnaUltraRoutes_5K_DEC',
+    order:0
+  },
+  {
+    id:'10K_JAN',
+    label:'10K Januari',
+    short:'10K Jan',
+    monthLabel:'Jan',
+    logsKey:'runnaUltraLogs_10K_JAN',
+    routesKey:'runnaUltraRoutes_10K_JAN',
+    order:1
+  }
 ];
 
-/* ======= GLOBAL LOGS & ROUTES ======= */
-let logs = {};
-let routeStore = {};
+/* ===== PLAN 5K DESEMBER (versi ringkas tapi akurat) ===== */
+const PLAN_5K_DES = [
+  // WEEK 1 (3–9)
+  {day:3,  type:'Easy',     title:'Easy Run 30 menit',           pace:'7:10–7:40', block:'support'},
+  {day:4,  type:'Strength', title:'Strength 25–35 menit',        pace:'-',         block:'support'},
+  {day:5,  type:'Interval', title:'Interval 6×200m',             pace:'5:00–5:20', block:'key'},
+  {day:6,  type:'Easy',     title:'Recovery Run',                pace:'7:20–7:50', block:'support'},
+  {day:7,  type:'Tempo',    title:'Tempo 15 menit',              pace:'6:15–6:25', block:'key'},
+  {day:8,  type:'Rest',     title:'Rest Day',                    pace:'-',         block:'rest'},
+  {day:9,  type:'Interval', title:'Interval 4×400m',             pace:'5:20–5:30', block:'key'},
+  // WEEK 2 (10–16)
+  {day:10, type:'Long',     title:'Long Run 8–10 km',            pace:'7:00–7:30', block:'key'},
+  {day:11, type:'Strength', title:'Strength 20–30 menit',        pace:'-',         block:'support'},
+  {day:12, type:'Tempo',    title:'Steady 25–30 menit',          pace:'6:30–6:50', block:'key'},
+  {day:13, type:'Easy',     title:'Easy Run',                    pace:'7:10–7:40', block:'support'},
+  {day:14, type:'Tempo',    title:'Tempo 2×8 menit',             pace:'6:00–6:15', block:'key'},
+  {day:15, type:'Rest',     title:'Rest Day',                    pace:'-',         block:'rest'},
+  {day:16, type:'Interval', title:'Test 1 km',                   pace:'5:10–5:40', block:'key'},
+  // WEEK 3 (17–23)
+  {day:17, type:'Easy',     title:'Easy Shakeout',               pace:'7:10–7:40', block:'support'},
+  {day:18, type:'Interval', title:'Interval 5×400m',             pace:'5:10–5:25', block:'key'},
+  {day:19, type:'Rest',     title:'Rest Day',                    pace:'-',         block:'rest'},
+  {day:20, type:'Tempo',    title:'Steady 30 menit',             pace:'6:30–6:50', block:'key'},
+  {day:21, type:'Long',     title:'Long Run 9–10 km',            pace:'7:00–7:40', block:'key'},
+  {day:22, type:'Strength', title:'Strength 25–35 menit',        pace:'-',         block:'support'},
+  {day:23, type:'Tempo',    title:'Tempo 12–15 menit',           pace:'6:05–6:20', block:'key'},
+  // WEEK 4 (24–31)
+  {day:24, type:'Easy',     title:'Easy Run',                    pace:'7:10–7:40', block:'support'},
+  {day:25, type:'Interval', title:'Interval 6×200m',             pace:'5:00–5:20', block:'key'},
+  {day:26, type:'Interval', title:'Interval 4–6×400m',           pace:'5:05–5:20', block:'key'},
+  {day:27, type:'Long',     title:'Long Run 8–9 km',             pace:'7:00–7:30', block:'key'},
+  {day:28, type:'Rest',     title:'Rest Day',                    pace:'-',         block:'rest'},
+  {day:29, type:'Strength', title:'Strength 20–25 menit (ringan)',pace:'-',        block:'support'},
+  {day:30, type:'Tempo',    title:'Tempo 2×10 menit',            pace:'6:00–6:10', block:'key'},
+  {day:31, type:'Interval', title:'Final Test 1 km',             pace:'4:50–5:20', block:'key'}
+];
 
-/* ======= UTIL ======= */
+/* ===== GLOBAL STORAGE ===== */
+const LOG_STORES = {};    // per planId
+const ROUTE_STORES = {};  // per planId
+let ENTRIES = [];         // gabungan semua plan
+let currentFilter = 'all';
+const mapStates = {};     // key: planId_day
+
+/* ===== UTIL ===== */
 function formatPace(sec){
   if(sec==null || isNaN(sec)) return '-';
   const m = Math.floor(sec/60);
@@ -373,6 +547,7 @@ function typeClass(type){
   if(type==='Interval') return 'interval';
   if(type==='Long') return 'long';
   if(type==='Rest') return 'rest';
+  if(type==='Strength') return 'strength';
   return '';
 }
 function typeLabelCls(type){
@@ -381,6 +556,7 @@ function typeLabelCls(type){
   if(type==='Interval') return 'type-interval';
   if(type==='Long') return 'type-long';
   if(type==='Rest') return 'type-rest';
+  if(type==='Strength') return 'type-strength';
   return '';
 }
 function blockLabel(block){
@@ -396,14 +572,53 @@ function rpeLabel(rpe){
   if(rpe==='crazy') return 'Meledak (9–10)';
   return '';
 }
-
-/* ======= ROUTE STORE (from localStorage) ======= */
-try{
-  routeStore = JSON.parse(localStorage.getItem('runnaUltraRoutes') || '{}');
-}catch(e){
-  routeStore = {};
+function findPlanMeta(planId, day){
+  if(planId==='5K_DEC'){
+    return PLAN_5K_DES.find(p=>p.day===day) || null;
+  }
+  // Plan 10K belum didefinisikan di sini → null (generic)
+  return null;
 }
 
+/* ===== LOAD DATA DARI LOCALSTORAGE ===== */
+function loadAllData(){
+  ENTRIES = [];
+  PLANS.forEach(pm=>{
+    let logs = {};
+    let routes = {};
+    try{
+      logs = JSON.parse(localStorage.getItem(pm.logsKey) || '{}');
+    }catch(e){logs = {};}
+    try{
+      const raw = localStorage.getItem(pm.routesKey);
+      routes = raw ? JSON.parse(raw) : {};
+    }catch(e){routes = {};}
+
+    LOG_STORES[pm.id] = logs;
+    ROUTE_STORES[pm.id] = routes;
+
+    Object.keys(logs).forEach(k=>{
+      const day = parseInt(k,10);
+      if(Number.isNaN(day)) return;
+      ENTRIES.push({
+        planId:pm.id,
+        planLabel:pm.label,
+        planOrder:pm.order,
+        monthLabel:pm.monthLabel,
+        day,
+        log:logs[k]
+      });
+    });
+  });
+
+  // sort: urut per plan, lalu per hari
+  ENTRIES.sort((a,b)=>{
+    if(a.planOrder!==b.planOrder) return a.planOrder-b.planOrder;
+    return a.day - b.day;
+  });
+}
+
+/* ===== ROUTE HANDLING ===== */
 function cleanLatLngArray(pts){
   if(!Array.isArray(pts)) return null;
   const cleaned = [];
@@ -419,70 +634,42 @@ function cleanLatLngArray(pts){
   return cleaned.length ? cleaned : null;
 }
 
-function getRouteLatLngs(day){
-  // 1) prioritas: route disimpan di logs[day].route (versi index terbaru)
-  const log = logs[day];
-  if(log && Array.isArray(log.route) && log.route.length){
-    const cleanedFromLog = cleanLatLngArray(log.route);
-    if(cleanedFromLog) return cleanedFromLog;
+function getRouteLatLngs(planId, day){
+  const logs = LOG_STORES[planId] || {};
+  const log = logs[day] || logs[String(day)];
+  if(log && log.route){
+    const cleaned = cleanLatLngArray(log.route);
+    if(cleaned) return cleaned;
   }
 
-  // 2) fallback: struktur lama di runnaUltraRoutes
-  const r = routeStore[day];
+  const rs = ROUTE_STORES[planId] || {};
+  const r = rs[day] || rs[String(day)];
   if(!r) return null;
-  const pts = r.latlng || r.coords || r.points;
+  const pts = r.latlng || r.coords || r.points || r;
   return cleanLatLngArray(pts);
 }
 
-/* ======= MAP ANIMATION STATE ======= */
-const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
-
-/* ======= BUILD TIMELINE ======= */
-(function init(){
-  try{
-    logs = JSON.parse(localStorage.getItem('runnaUltraLogs')||'{}');
-  }catch(e){
-    logs = {};
-  }
-
-  const entries = [];
-  Object.keys(logs).forEach(k=>{
-    const day = Number(k);
-    const p = plan.find(x=>x.day===day);
-    if(!p) return;
-    const lg = logs[k];
-    entries.push({day,p,log:lg});
-  });
-
-  // ascending hari (3 → 31). Mau terbaru dulu? pakai reverse() aja
-  entries.sort((a,b)=>a.day-b.day);
-
-  const timelineEl = document.getElementById('timeline');
-  const emptyEl = document.getElementById('emptyState');
-  const summaryEl = document.getElementById('summary');
-
-  if(entries.length===0){
-    emptyEl.style.display = 'block';
-    timelineEl.innerHTML = '';
-    summaryEl.innerHTML = '';
-    return;
-  }
-
-  // ===== SUMMARY BADGES =====
+/* ===== SUMMARY ===== */
+function computeStats(entries){
   let totalDist = 0;
   let bestPace = null;
   let sumHR = 0, countHR = 0;
   let hardCount = 0;
-  const shoeDist = {}; // total km per sepatu
+  const shoeDist = {};
 
   entries.forEach(e=>{
-    const {log,p} = e;
+    const {log,planId,day} = e;
+    const meta = findPlanMeta(planId,day);
+
     if(log.dist!=null && !isNaN(log.dist)) totalDist += log.dist;
     if(log.paceSec!=null && !isNaN(log.paceSec)){
       if(bestPace==null || log.paceSec<bestPace) bestPace = log.paceSec;
     }
     if(log.hr!=null && !isNaN(log.hr)){ sumHR+=log.hr; countHR++; }
-    if(p.type==='Tempo' || p.type==='Interval') hardCount++;
+
+    const isHardType = meta && (meta.type==='Tempo' || meta.type==='Interval');
+    const isHardRpe = log.rpe==='hard' || log.rpe==='crazy';
+    if(isHardType || isHardRpe) hardCount++;
 
     if(log.shoe){
       const d = log.dist!=null && !isNaN(log.dist) ? log.dist : 0;
@@ -490,40 +677,93 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     }
   });
 
-  const avgHR = countHR? Math.round(sumHR/countHR) : null;
+  return {totalDist,bestPace,avgHR:countHR?Math.round(sumHR/countHR):null,hardCount,shoeDist};
+}
+
+function renderSummary(){
+  const summaryEl = document.getElementById('summary');
+  const filtered = ENTRIES.filter(e=> currentFilter==='all' || e.planId===currentFilter);
+  summaryEl.innerHTML = '';
+
+  if(filtered.length===0){
+    summaryEl.innerHTML = `<span class="badge">Belum ada sesi untuk filter ini.</span>`;
+    return;
+  }
+
+  const stats = computeStats(filtered);
   const badges = [];
 
-  badges.push(`<span class="badge badge-strong">Total ${entries.length} sesi • ${(totalDist||0).toFixed(1)} km</span>`);
-  if(bestPace){
-    badges.push(`<span class="badge">Best pace: ${formatPace(bestPace)} /km</span>`);
+  badges.push(`<span class="badge badge-strong">Total ${filtered.length} sesi • ${stats.totalDist.toFixed(1)} km</span>`);
+  if(stats.bestPace){
+    badges.push(`<span class="badge">Best pace: ${formatPace(stats.bestPace)} /km</span>`);
   }
-  if(avgHR){
-    badges.push(`<span class="badge">Rata-rata HR: ${avgHR} bpm</span>`);
+  if(stats.avgHR){
+    badges.push(`<span class="badge">Rata-rata HR: ${stats.avgHR} bpm</span>`);
   }
-  if(hardCount>4){
-    badges.push(`<span class="badge badge-warn">Sesi keras: ${hardCount}× • jaga recovery ya</span>`);
-  }else if(hardCount>0){
-    badges.push(`<span class="badge">Sesi keras: ${hardCount}× • balance oke</span>`);
+  if(stats.hardCount>4){
+    badges.push(`<span class="badge badge-warn">Sesi keras: ${stats.hardCount}× • jaga recovery ya</span>`);
+  }else if(stats.hardCount>0){
+    badges.push(`<span class="badge">Sesi keras: ${stats.hardCount}× • balance oke</span>`);
   }
 
-  // badge tambahan: total km per sepatu (top 3)
-  const shoeNames = Object.keys(shoeDist);
+  // top sepatu (max 2) untuk filter ini
+  const shoeNames = Object.keys(stats.shoeDist);
   if(shoeNames.length){
     const top = shoeNames
-      .map(name=>({name,dist:shoeDist[name]}))
+      .map(name=>({name,dist:stats.shoeDist[name]}))
       .sort((a,b)=>b.dist-a.dist)
-      .slice(0,3);
+      .slice(0,2);
     top.forEach(s=>{
       badges.push(`<span class="badge">Sepatu ${s.name}: ${s.dist.toFixed(1)} km</span>`);
     });
   }
 
-  summaryEl.innerHTML = badges.join('');
+  // kalau filter "all" → kasih mini badge per-plan
+  if(currentFilter==='all'){
+    PLANS.forEach(pm=>{
+      const planEntries = filtered.filter(e=>e.planId===pm.id);
+      if(!planEntries.length) return;
+      const st = computeStats(planEntries);
+      badges.push(`<span class="badge badge-plan">${pm.short}: ${st.totalDist.toFixed(1)} km • ${planEntries.length} sesi</span>`);
+    });
+  }
 
-  // ===== TIMELINE HTML =====
+  summaryEl.innerHTML = badges.join('');
+}
+
+/* ===== TIMELINE RENDER ===== */
+function renderTimeline(){
+  const timelineEl = document.getElementById('timeline');
+  const emptyEl = document.getElementById('emptyState');
+
+  // bersihkan map lama
+  Object.keys(mapStates).forEach(key=>{
+    const st = mapStates[key];
+    if(st && st.map){
+      st.map.remove();
+    }
+    delete mapStates[key];
+  });
+
+  const filtered = ENTRIES.filter(e=> currentFilter==='all' || e.planId===currentFilter);
+
+  if(filtered.length===0){
+    emptyEl.style.display = 'block';
+    timelineEl.innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
   let html = '';
-  entries.forEach(e=>{
-    const {day,p,log} = e;
+  filtered.forEach(e=>{
+    const {planId,planLabel,monthLabel,day,log} = e;
+    const meta = findPlanMeta(planId,day);
+
+    const type = meta ? meta.type : 'Session';
+    const title = meta ? meta.title : `Logged Session — ${planLabel}`;
+    const targetPace = meta ? meta.pace : '-';
+    const block = meta ? meta.block : null;
+
     const pace = log.paceSec!=null? formatPace(log.paceSec)+' /km':'-';
     const dist = (log.dist!=null && !isNaN(log.dist))? log.dist.toFixed(2)+' km':'-';
     const hr   = (log.hr!=null && !isNaN(log.hr))? log.hr+' bpm':'-';
@@ -532,28 +772,35 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
     const shoe = log.shoe || '';
     const note = log.note || '';
 
-    const typeCls = typeClass(p.type);
-    const typeLblCls = typeLabelCls(p.type);
-    const blockInfo = blockLabel(p.block);
-    const mapId = `map-${day}`;
-    const hasRoute = !!getRouteLatLngs(day);
+    const tClass = typeClass(type);
+    const tLblCls = typeLabelCls(type);
+    const blockInfo = blockLabel(block);
+
+    const mapId = `map-${planId}-${day}`;
+    const statusId = `map-status-${planId}-${day}`;
+    const hasRoute = !!getRouteLatLngs(planId,day);
 
     let comment = '';
-
-    if(p.type==='Easy'){
-      if(log.paceSec && log.paceSec<360){
-        comment = 'Easy-nya udah mirip tempo 🤣 turunin dikit gapapa, yang penting besok masih bisa lari.';
-      }else{
-        comment = 'Easy run yang beneran easy. Ini sesi yang diam-diam bikin engine kamu makin kuat.';
+    if(meta){
+      if(meta.type==='Easy'){
+        if(log.paceSec && log.paceSec<360){
+          comment = 'Easy-nya udah mirip tempo 🤣 turunin dikit gapapa, yang penting besok masih bisa lari.';
+        }else{
+          comment = 'Easy run yang beneran easy. Ini sesi yang diam-diam bikin engine kamu makin kuat.';
+        }
+      }else if(meta.type==='Tempo'){
+        comment = 'Tempo ini yang pelan-pelan dorong pace 5 kecil jadi kenyataan. Konsistensi > sekali kenceng.';
+      }else if(meta.type==='Interval'){
+        comment = 'Interval bikin kaki kenal pace cepat. Jangan lupa pairing dengan easy run yang cukup.';
+      }else if(meta.type==='Long'){
+        comment = 'Long run = tabungan endurance. Jaraknya nggak harus ekstrem, yang penting stabil.';
+      }else if(meta.type==='Rest'){
+        comment = 'Rest day dicatat. Recovery itu bagian dari program, bukan tanda malas.';
+      }else if(meta.type==='Strength'){
+        comment = 'Strength session = investasi buat kaki, core, dan pinggul. Ini yang jaga badan tetap tahan banting.';
       }
-    }else if(p.type==='Tempo'){
-      comment = 'Tempo ini yang pelan-pelan dorong pace 5 kecil jadi kenyataan. Konsistensi > sekali kenceng.';
-    }else if(p.type==='Interval'){
-      comment = 'Interval bikin kaki kenal pace cepat. Jangan lupa pairing dengan easy run yang cukup.';
-    }else if(p.type==='Long'){
-      comment = 'Long run = tabungan endurance. Jaraknya nggak harus ekstrem, yang penting stabil.';
-    }else if(p.type==='Rest'){
-      comment = 'Rest day dicatat. Recovery itu bagian dari program, bukan tanda malas.';
+    }else{
+      comment = 'Sesi dari log plan ini. Detail jenis sesi nggak tersimpan, tapi datanya tetap kepake buat lihat progres.';
     }
 
     if(rpe){
@@ -562,20 +809,20 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
 
     html += `
       <div class="item">
-        <div class="item-dot ${typeCls}"></div>
+        <div class="item-dot ${tClass}"></div>
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="date-label">${day} Des • ${p.type}</div>
-              <div class="type-label ${typeLblCls}">
-                ${p.title}
-                <span>Target: ${p.pace}</span>
+              <div class="date-label">${day} ${monthLabel} • ${meta ? type : planLabel}</div>
+              <div class="type-label ${tLblCls}">
+                ${title}
+                <span>Target: ${targetPace}</span>
               </div>
             </div>
             <div class="pill ${blockInfo.cls}">${blockInfo.text}</div>
           </div>
           <div class="card-body">
-            <div class="target">Target coach: ${p.pace}</div>
+            <div class="target">Target coach: ${targetPace}</div>
             <div class="row">
               <span><span class="label">Jarak:</span> ${dist}</span>
               <span><span class="label">Waktu:</span> ${time}</span>
@@ -594,15 +841,15 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
             </div>
             <div class="mini-map-wrap">
               <div class="map-controls">
-                <button class="map-btn anim-btn" data-day="${day}" ${hasRoute ? '' : 'disabled'}>
+                <button class="map-btn anim-btn" data-plan="${planId}" data-day="${day}" ${hasRoute ? '' : 'disabled'}>
                   ${hasRoute ? '▶ Animate Route' : 'No TCX route'}
                 </button>
-                <div class="map-status" id="map-status-${day}">
+                <div class="map-status" id="${statusId}">
                   ${hasRoute ? 'Idle • siap dianimasikan' : 'Belum ada route tersimpan'}
                 </div>
               </div>
               <div class="mini-map" id="${mapId}">
-                ${hasRoute ? '' : '<div class="map-placeholder">Upload TCX di halaman utama supaya route hari ini muncul di sini.</div>'}
+                ${hasRoute ? '' : '<div class="map-placeholder">Upload TCX di kalender plan supaya route hari ini muncul di sini.</div>'}
               </div>
             </div>
           </div>
@@ -613,16 +860,16 @@ const mapStates = {}; // day -> {map, poly, latlngs, playing, idx, rafId}
 
   timelineEl.innerHTML = html;
 
-  // ===== INIT MINI MAPS =====
-  entries.forEach(e=>{
-    initMiniMap(e.day);
+  // init semua mini map yg punya route
+  filtered.forEach(e=>{
+    initMiniMap(e.planId,e.day);
   });
-})();
+}
 
-/* ======= MINI MAP + ANIMASI ======= */
-function initMiniMap(day){
-  const latlngs = getRouteLatLngs(day);
-  const mapEl = document.getElementById(`map-${day}`);
+/* ===== MINI MAP + ANIMASI ===== */
+function initMiniMap(planId, day){
+  const latlngs = getRouteLatLngs(planId,day);
+  const mapEl = document.getElementById(`map-${planId}-${day}`);
   if(!mapEl || !latlngs) return;
 
   const map = L.map(mapEl, {
@@ -641,15 +888,19 @@ function initMiniMap(day){
 
   const poly = L.polyline([], {color:'#00eaff',weight:3}).addTo(map);
 
-  // Start & end markers kecil
-  L.circleMarker(latlngs[0], {radius:3,color:'#b0ff4d',fillColor:'#b0ff4d',fillOpacity:1}).addTo(map);
+  L.circleMarker(latlngs[0], {
+    radius:3,color:'#b0ff4d',fillColor:'#b0ff4d',fillOpacity:1
+  }).addTo(map);
   if(latlngs.length>1){
-    L.circleMarker(latlngs[latlngs.length-1], {radius:3,color:'#ff4dff',fillColor:'#ff4dff',fillOpacity:1}).addTo(map);
+    L.circleMarker(latlngs[latlngs.length-1], {
+      radius:3,color:'#ff4dff',fillColor:'#ff4dff',fillOpacity:1
+    }).addTo(map);
   }
 
   map.fitBounds(L.latLngBounds(latlngs), {padding:[6,6]});
 
-  mapStates[day] = {
+  const key = `${planId}_${day}`;
+  mapStates[key] = {
     map,
     poly,
     latlngs,
@@ -659,15 +910,15 @@ function initMiniMap(day){
   };
 }
 
-function startAnimation(day, btn){
-  const st = mapStates[day];
+function startAnimation(planId, day, btn){
+  const key = `${planId}_${day}`;
+  const st = mapStates[key];
   if(!st || !st.latlngs || !st.latlngs.length) return;
 
-  // reset
   st.poly.setLatLngs([st.latlngs[0]]);
   st.idx = 1;
   st.playing = true;
-  const status = document.getElementById(`map-status-${day}`);
+  const status = document.getElementById(`map-status-${planId}-${day}`);
   if(status) status.textContent = 'Playing • animasi route berjalan...';
   btn.textContent = '⏸ Stop';
 
@@ -686,42 +937,90 @@ function startAnimation(day, btn){
     pts.push(st.latlngs[st.idx]);
     st.poly.setLatLngs(pts);
     st.idx++;
-
-    // sedikit “slow-mo” biar kerasa kayak video
     st.rafId = requestAnimationFrame(step);
   };
 
   st.rafId = requestAnimationFrame(step);
 }
 
-function stopAnimation(day, btn){
-  const st = mapStates[day];
+function stopAnimation(planId, day, btn){
+  const key = `${planId}_${day}`;
+  const st = mapStates[key];
   if(!st) return;
   st.playing = false;
   if(st.rafId) cancelAnimationFrame(st.rafId);
   st.rafId = null;
-  const status = document.getElementById(`map-status-${day}`);
+  const status = document.getElementById(`map-status-${planId}-${day}`);
   if(status) status.textContent = 'Paused • bisa lanjut lagi atau replay dari awal';
   btn.textContent = '▶ Resume';
 }
 
-/* ======= BUTTON HANDLER (ON/OFF) ======= */
+/* ===== EVENT HANDLER ===== */
 document.addEventListener('click', e=>{
-  const btn = e.target.closest('.anim-btn');
-  if(!btn) return;
-  const day = Number(btn.dataset.day);
-  const st = mapStates[day];
-  if(!st){
-    const status = document.getElementById(`map-status-${day}`);
-    if(status) status.textContent = 'Route belum tersedia / gagal dibaca.';
+  // filter chip
+  const chip = e.target.closest('.filter-chip');
+  if(chip){
+    const val = chip.dataset.filter;
+    if(val){
+      currentFilter = val;
+      document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('filter-active'));
+      chip.classList.add('filter-active');
+      renderSummary();
+      renderTimeline();
+    }
     return;
   }
-  if(!st.playing){
-    startAnimation(day, btn);
-  }else{
-    stopAnimation(day, btn);
+
+  // animasi mini map
+  const btn = e.target.closest('.anim-btn');
+  if(btn){
+    if(btn.disabled) return;
+    const planId = btn.dataset.plan;
+    const day = Number(btn.dataset.day);
+    const key = `${planId}_${day}`;
+    const st = mapStates[key];
+    if(!st){
+      const status = document.getElementById(`map-status-${planId}-${day}`);
+      if(status) status.textContent = 'Route belum tersedia / gagal dibaca.';
+      return;
+    }
+    if(!st.playing){
+      startAnimation(planId,day,btn);
+    }else{
+      stopAnimation(planId,day,btn);
+    }
   }
 });
+
+/* ===== MODAL PILIH PLAN ===== */
+const planModal = document.getElementById('planModal');
+const backBtn = document.getElementById('backToCalendar');
+const modalCloseBtn = document.getElementById('planModalClose');
+
+backBtn.addEventListener('click', ()=>{
+  planModal.classList.add('show');
+});
+modalCloseBtn.addEventListener('click', ()=>{
+  planModal.classList.remove('show');
+});
+planModal.addEventListener('click', (e)=>{
+  if(e.target === planModal){
+    planModal.classList.remove('show');
+  }
+});
+document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const target = btn.getAttribute('data-target');
+    if(target) window.location.href = target;
+  });
+});
+
+/* ===== INIT ===== */
+(function init(){
+  loadAllData();
+  renderSummary();
+  renderTimeline();
+})();
 </script>
 
 </body>
