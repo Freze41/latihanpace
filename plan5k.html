@@ -821,65 +821,117 @@ function parseTCXData(xmlText){
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText,"application/xml");
     const pts = xml.getElementsByTagName("Trackpoint");
+
     const route = [];
-    let firstTime=null,lastTime=null;
-    let lastDist=null;
+    const samples = []; // {tSec, distKm}
+
+    let firstTime = null;
+    let lastTime  = null;
+    let lastLat   = null;
+    let lastLon   = null;
+    let lastDistKm = 0;
 
     for(let i=0;i<pts.length;i++){
       const tp = pts[i];
 
+      // Time
       const timeEl = tp.getElementsByTagName("Time")[0];
+      let tMs = null;
       if(timeEl){
-        const t = new Date(timeEl.textContent.trim()).getTime();
-        if(!isNaN(t)){
-          if(firstTime===null) firstTime=t;
-          lastTime=t;
+        const tParsed = Date.parse(timeEl.textContent.trim());
+        if(!Number.isNaN(tParsed)){
+          if(firstTime === null) firstTime = tParsed;
+          lastTime = tParsed;
+          tMs = tParsed;
         }
       }
 
-      const distEl = tp.getElementsByTagName("DistanceMeters")[0];
-      if(distEl){
-        const d = parseFloat(distEl.textContent);
-        if(!isNaN(d)) lastDist=d;
-      }
-
+      // Position
+      let lat = null, lon = null;
       const pos = tp.getElementsByTagName("Position")[0];
       if(pos){
         const latEl = pos.getElementsByTagName("LatitudeDegrees")[0];
         const lonEl = pos.getElementsByTagName("LongitudeDegrees")[0];
         if(latEl && lonEl){
-          const lat = parseFloat(latEl.textContent);
-          const lon = parseFloat(lonEl.textContent);
-          if(!isNaN(lat) && !isNaN(lon) && i%3===0){
+          lat = parseFloat(latEl.textContent);
+          lon = parseFloat(lonEl.textContent);
+          if(!Number.isNaN(lat) && !Number.isNaN(lon) && i%3===0){
             route.push([lat,lon]);
           }
         }
       }
-    }
 
-    let totalSec = (firstTime!=null && lastTime!=null && lastTime>firstTime)
-      ? (lastTime-firstTime)/1000 : null;
-    let totalKm = (lastDist!=null) ? lastDist/1000 : null;
-
-    if((totalKm==null || totalKm===0) && route.length>1){
-      let d=0;
-      for(let i=1;i<route.length;i++){
-        d += haversineKm(route[i-1],route[i]);
+      // Distance (km)
+      let distKm = lastDistKm;
+      const distEl = tp.getElementsByTagName("DistanceMeters")[0];
+      if(distEl){
+        const d = parseFloat(distEl.textContent);
+        if(!Number.isNaN(d)){
+          distKm = d/1000;
+        }
+      }else if(lat!=null && lon!=null && lastLat!=null && lastLon!=null){
+        distKm = lastDistKm + haversineKm([lastLat,lastLon],[lat,lon]);
       }
-      totalKm = d;
+
+      // Sample untuk split
+      if(tMs!=null){
+        const tSec = (tMs - firstTime)/1000;
+        samples.push({tSec,distKm});
+      }
+
+      if(lat!=null && lon!=null){
+        lastLat = lat;
+        lastLon = lon;
+      }
+      lastDistKm = distKm;
     }
+
+    const totalKm  = lastDistKm>0 ? lastDistKm : null;
+    const totalSec = (firstTime!=null && lastTime!=null && lastTime>firstTime)
+      ? (lastTime-firstTime)/1000
+      : null;
 
     let paceSec = null;
-    if(totalSec!=null && totalKm && totalKm>0.1){
+    if(totalKm && totalSec){
       paceSec = totalSec/totalKm;
     }
 
-    return {route,totalKm,totalSec,paceSec};
+    // HITUNG SPLIT PER KM
+    const splits = [];
+    if(samples.length>1 && totalKm && totalKm>0.2){
+      let nextKm = 1;
+      const maxKm = Math.floor(totalKm + 0.05); // km bulat
+      let lastCumSecAtKm0 = 0;
+
+      for(let i=1;i<samples.length && nextKm<=maxKm;i++){
+        const prev = samples[i-1];
+        const cur  = samples[i];
+
+        if(cur.distKm < nextKm) continue;
+
+        const dDist = cur.distKm - prev.distKm;
+        const dTime = cur.tSec  - prev.tSec;
+        let tAtKm = cur.tSec;
+
+        if(dDist>0){
+          const ratio = (nextKm - prev.distKm)/dDist;
+          tAtKm = prev.tSec + ratio*dTime;
+        }
+
+        const splitSec = tAtKm - lastCumSecAtKm0;
+        splits.push({km:nextKm, paceSec:splitSec});
+        lastCumSecAtKm0 = tAtKm;
+        nextKm++;
+      }
+    }
+
+    return {route,totalKm,totalSec,paceSec,splits};
   }catch(e){
     console.error('TCX parse error',e);
-    return {route:[],totalKm:null,totalSec:null,paceSec:null};
+    return {route:[],totalKm:null,totalSec:null,paceSec:null,splits:[]};
   }
 }
+
 
 function ensureMap(){
   if(map) return;
@@ -1522,16 +1574,20 @@ function saveModalLog(){
   }
 
   const prevLog = logs[p.day] || {};
-  const baseLog = {
-    paceSec: paceSec,
-    hr: hrVal,
-    dist: distVal,
-    timeSec: timeSec,
-    rpe: rpeStr || null,
-    shoe: shoeStr || prevLog.shoe || null,
-    note: noteStr || prevLog.note || null,
-    route: tcx && tcx.route && tcx.route.length ? tcx.route : (prevLog.route || undefined)
-  };
+ const baseLog = {
+  paceSec: paceSec,
+  hr: hrVal,
+  dist: distVal,
+  timeSec: timeSec,
+  rpe: rpeStr || null,
+  shoe: shoeStr || prevLog.shoe || null,
+  note: noteStr || prevLog.note || null,
+  route: tcx && tcx.route && tcx.route.length ? tcx.route : (prevLog.route || undefined),
+  // NEW: simpan splits (kalau TCX baru ada datanya)
+  splits: tcx && Array.isArray(tcx.splits) && tcx.splits.length
+    ? tcx.splits
+    : (prevLog.splits || undefined)
+};
 
   logs[p.day] = baseLog;
   pendingTCX = null;
@@ -1686,4 +1742,5 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
+
 
