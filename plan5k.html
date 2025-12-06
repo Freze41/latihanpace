@@ -823,30 +823,42 @@ function parseTCXData(xmlText){
     const pts = xml.getElementsByTagName("Trackpoint");
 
     const route = [];
-    const samples = []; // {tSec, distKm}
+    const samples = []; // { t, dist, lat, lon }
 
     let firstTime = null;
     let lastTime  = null;
-    let lastLat   = null;
-    let lastLon   = null;
-    let lastDistKm = 0;
+    let lastDistFromTag = null;
 
     for(let i=0;i<pts.length;i++){
       const tp = pts[i];
 
-      // Time
-      const timeEl = tp.getElementsByTagName("Time")[0];
+      // ===== Time =====
       let tMs = null;
+      const timeEl = tp.getElementsByTagName("Time")[0];
       if(timeEl){
-        const tParsed = Date.parse(timeEl.textContent.trim());
-        if(!Number.isNaN(tParsed)){
-          if(firstTime === null) firstTime = tParsed;
-          lastTime = tParsed;
-          tMs = tParsed;
+        const t = new Date(timeEl.textContent.trim()).getTime();
+        if(!isNaN(t)){
+          tMs = t;
+          if(firstTime===null) firstTime = t;
+          lastTime = t;
         }
       }
 
-      // Position
+      // ===== Distance =====
+      let distM = null;
+      const distEl = tp.getElementsByTagName("DistanceMeters")[0];
+      if(distEl){
+        const d = parseFloat(distEl.textContent);
+        if(!isNaN(d)){
+          distM = d;
+          lastDistFromTag = d;
+        }
+      }else if(lastDistFromTag!=null){
+        // kalau titik ini nggak punya DistanceMeters, pakai nilai terakhir
+        distM = lastDistFromTag;
+      }
+
+      // ===== Position (buat route & fallback jarak) =====
       let lat = null, lon = null;
       const pos = tp.getElementsByTagName("Position")[0];
       if(pos){
@@ -855,82 +867,167 @@ function parseTCXData(xmlText){
         if(latEl && lonEl){
           lat = parseFloat(latEl.textContent);
           lon = parseFloat(lonEl.textContent);
-          if(!Number.isNaN(lat) && !Number.isNaN(lon) && i%3===0){
-            route.push([lat,lon]);
+          if(!isNaN(lat) && !isNaN(lon)){
+            // route untuk map (downsample supaya enteng)
+            if(i % 3 === 0){
+              route.push([lat,lon]);
+            }
           }
         }
       }
 
-      // Distance (km)
-      let distKm = lastDistKm;
-      const distEl = tp.getElementsByTagName("DistanceMeters")[0];
-      if(distEl){
-        const d = parseFloat(distEl.textContent);
-        if(!Number.isNaN(d)){
-          distKm = d/1000;
-        }
-      }else if(lat!=null && lon!=null && lastLat!=null && lastLon!=null){
-        distKm = lastDistKm + haversineKm([lastLat,lastLon],[lat,lon]);
-      }
-
-      // Sample untuk split
       if(tMs!=null){
-        const tSec = (tMs - firstTime)/1000;
-        samples.push({tSec,distKm});
+        samples.push({ t:tMs, dist:distM, lat, lon });
       }
-
-      if(lat!=null && lon!=null){
-        lastLat = lat;
-        lastLon = lon;
-      }
-      lastDistKm = distKm;
     }
 
-    const totalKm  = lastDistKm>0 ? lastDistKm : null;
-    const totalSec = (firstTime!=null && lastTime!=null && lastTime>firstTime)
-      ? (lastTime-firstTime)/1000
-      : null;
+    // ===== Total jarak & waktu =====
+    let totalSec = null;
+    let totalKm  = null;
+
+    if(firstTime!=null && lastTime!=null && lastTime>firstTime){
+      totalSec = (lastTime - firstTime) / 1000;
+    }
+
+    // lebih prefer DistanceMeters; kalau nggak ada baru pakai haversine
+    if(samples.some(s => s.dist!=null)){
+      let maxD = 0;
+      for(const s of samples){
+        if(s.dist!=null && s.dist>maxD) maxD = s.dist;
+      }
+      totalKm = maxD / 1000;
+    }else if(route.length>1){
+      let d = 0;
+      for(let i=1;i<route.length;i++){
+        d += haversineKm(route[i-1], route[i]);
+      }
+      totalKm = d;
+    }
 
     let paceSec = null;
-    if(totalKm && totalSec){
-      paceSec = totalSec/totalKm;
+    if(totalSec!=null && totalKm && totalKm>0.1){
+      paceSec = totalSec / totalKm;
     }
 
-    // HITUNG SPLIT PER KM
-    const splits = [];
-    if(samples.length>1 && totalKm && totalKm>0.2){
-      let nextKm = 1;
-      const maxKm = Math.floor(totalKm + 0.05); // km bulat
-      let lastCumSecAtKm0 = 0;
+    // ===== Hitung split per km =====
+    const kmSplits = [];
 
-      for(let i=1;i<samples.length && nextKm<=maxKm;i++){
-        const prev = samples[i-1];
-        const cur  = samples[i];
+    if(samples.length >= 2 && totalKm){
 
-        if(cur.distKm < nextKm) continue;
+      // 1) Pastikan setiap sample punya dist yang naik terus
+      if(!samples.some(s => s.dist!=null)){
+        // fallback full haversine kalau bener-bener nggak ada DistanceMeters
+        let acc = 0;
+        samples[0].dist = 0;
+        for(let i=1;i<samples.length;i++){
+          const prev = samples[i-1];
+          const cur  = samples[i];
+          if(
+            prev.lat!=null && prev.lon!=null &&
+            cur.lat !=null && cur.lon !=null
+          ){
+            acc += haversineKm(
+              [prev.lat, prev.lon],
+              [cur.lat,  cur.lon]
+            ) * 1000;
+          }
+          samples[i].dist = acc;
+        }
+      }else{
+        let lastD = samples[0].dist || 0;
+        samples[0].dist = lastD;
+        for(let i=1;i<samples.length;i++){
+          let d = samples[i].dist;
+          if(d == null || isNaN(d) || d < lastD){
+            // kalau null / NaN / tiba-tiba turun → pakai nilai sebelumnya
+            d = lastD;
+          }
+          samples[i].dist = d;
+          lastD = d;
+        }
+      }
 
-        const dDist = cur.distKm - prev.distKm;
-        const dTime = cur.tSec  - prev.tSec;
-        let tAtKm = cur.tSec;
+      // 2) Loop dan cari crossing tiap 1 km (pakai interpolasi)
+      let splitStartTime = samples[0].t;
+      let prevSample     = samples[0];
+      let lastKmIndex    = 0; // sudah selesai sampai km berapa
 
-        if(dDist>0){
-          const ratio = (nextKm - prev.distKm)/dDist;
-          tAtKm = prev.tSec + ratio*dTime;
+      for(let i=1;i<samples.length;i++){
+        const cur = samples[i];
+        if(cur.dist==null) continue;
+
+        const prevD = prevSample.dist!=null ? prevSample.dist : cur.dist;
+        const curD  = cur.dist;
+        const prevT = prevSample.t;
+        const curT  = cur.t;
+
+        // bisa saja di satu segmen lewatin beberapa km (mis: data jarang)
+        while(Math.floor(curD/1000) > lastKmIndex){
+          const targetKm    = lastKmIndex + 1;
+          const targetDistM = targetKm * 1000;
+          if(targetDistM > curD) break;
+
+          // interpolasi waktu ketika tepat di targetDistM
+          let tAtKm = curT;
+          if(curD !== prevD){
+            const ratio = (targetDistM - prevD) / (curD - prevD);
+            if(ratio >= 0 && ratio <= 1){
+              tAtKm = prevT + ratio * (curT - prevT);
+            }
+          }
+
+          const moveSec = (tAtKm - splitStartTime) / 1000;
+
+          kmSplits.push({
+            km: targetKm,
+            distanceKm: 1,
+            moveSec,
+            paceSec: moveSec // karena jarak 1 km
+          });
+
+          // split berikutnya mulai dari titik ini
+          splitStartTime = tAtKm;
+          lastKmIndex    = targetKm;
         }
 
-        const splitSec = tAtKm - lastCumSecAtKm0;
-        splits.push({km:nextKm, paceSec:splitSec});
-        lastCumSecAtKm0 = tAtKm;
-        nextKm++;
+        prevSample = cur;
+      }
+
+      // 3) Optional: split terakhir kalau masih ada sisa > 250 m
+      const lastS = samples[samples.length-1];
+      if(lastS.dist!=null && lastS.dist/1000 > lastKmIndex + 0.25){
+        const leftoverKm = lastS.dist/1000 - lastKmIndex;
+        const moveSec    = (lastS.t - splitStartTime) / 1000;
+        if(moveSec>0 && leftoverKm>0.05){
+          kmSplits.push({
+            km: lastKmIndex + 1,
+            distanceKm: leftoverKm,
+            moveSec,
+            paceSec: moveSec / leftoverKm
+          });
+        }
       }
     }
 
-    return {route,totalKm,totalSec,paceSec,splits};
+    return {
+      route,
+      totalKm,
+      totalSec,
+      paceSec,
+      kmSplits
+    };
   }catch(e){
-    console.error('TCX parse error',e);
-    return {route:[],totalKm:null,totalSec:null,paceSec:null,splits:[]};
+    console.error('TCX parse error', e);
+    return {
+      route:[],
+      totalKm:null,
+      totalSec:null,
+      paceSec:null,
+      kmSplits:[]
+    };
   }
 }
+
 
 
 function ensureMap(){
@@ -1584,7 +1681,7 @@ function saveModalLog(){
   note: noteStr || prevLog.note || null,
   route: tcx && tcx.route && tcx.route.length ? tcx.route : (prevLog.route || undefined),
   // NEW: simpan splits (kalau TCX baru ada datanya)
-  splits: tcx && Array.isArray(tcx.splits) && tcx.splits.length
+  splits: tcx && tcx.kmSplits && tcx.kmSplits.length ? tcx.kmSplits : (prevLog.splits || undefined)
     ? tcx.splits
     : (prevLog.splits || undefined)
 };
@@ -1742,5 +1839,6 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
+
 
 
