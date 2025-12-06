@@ -1669,9 +1669,8 @@ function saveModalLog(){
       timeSec = Math.round(tcx.totalSec);
     }
   }
-
-  const prevLog = logs[p.day] || {};
- const baseLog = {
+const prevLog = logs[p.day] || {};
+const baseLog = {
   paceSec: paceSec,
   hr: hrVal,
   dist: distVal,
@@ -1680,11 +1679,9 @@ function saveModalLog(){
   shoe: shoeStr || prevLog.shoe || null,
   note: noteStr || prevLog.note || null,
   route: tcx && tcx.route && tcx.route.length ? tcx.route : (prevLog.route || undefined),
-  // NEW: simpan splits (kalau TCX baru ada datanya)
   splits: tcx && tcx.kmSplits && tcx.kmSplits.length ? tcx.kmSplits : (prevLog.splits || undefined)
-    ? tcx.splits
-    : (prevLog.splits || undefined)
 };
+
 
   logs[p.day] = baseLog;
   pendingTCX = null;
@@ -1839,6 +1836,7 @@ document.addEventListener('click', e=>{
 
 </body>
 </html>
+
 
 
 
