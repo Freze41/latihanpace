@@ -1118,12 +1118,12 @@ function renderTimeline(){
   });
 }
 
-/* ===== MINI MAP + ANIMASI ===== */
-/* ===== MINI MAP + ANIMASI ===== */
+
+/* ===== MINI MAP + ANIMASI (DARK MAP + GLOW ROUTE) ===== */
 function initMiniMap(planId, day){
   const latlngs = getRouteLatLngs(planId,day);
   const mapEl = document.getElementById(`map-${planId}-${day}`);
-  if(!mapEl || !latlngs) return;
+  if(!mapEl || !latlngs || !latlngs.length) return;
 
   const map = L.map(mapEl, {
     zoomControl:false,
@@ -1135,26 +1135,30 @@ function initMiniMap(planId, day){
     keyboard:false
   });
 
-  // 🔥 DARK MAP – lebih nyatu sama tema cyberpunk
+  // 🌑 DARK MAP – lebih nyatu sama tema cyberpunk
   L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
     {
       maxZoom: 19,
-      subdomains: 'abcd',
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> ' +
-        '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+      subdomains: 'abcd'
     }
   ).addTo(map);
 
-  // Neon route
-  const poly = L.polyline([], {
+  // Base route (garis tipis statis, selalu kelihatan)
+  const basePoly = L.polyline(latlngs, {
+    color:'#444c88',
+    weight:2,
+    opacity:0.7
+  }).addTo(map);
+
+  // Glow route (untuk animasi)
+  const glowPoly = L.polyline([], {
     color:'#00eaff',
     weight:3,
     opacity:0.95
   }).addTo(map);
 
-  // Start (lime) & finish (magenta)
+  // Start marker (lime) & finish marker (magenta)
   L.circleMarker(latlngs[0], {
     radius:3,
     color:'#b0ff4d',
@@ -1171,18 +1175,71 @@ function initMiniMap(planId, day){
     }).addTo(map);
   }
 
-  // Auto zoom biar seluruh rute kelihatan
+  // Auto zoom ke seluruh rute
   map.fitBounds(L.latLngBounds(latlngs), { padding:[6,6] });
 
   const key = `${planId}_${day}`;
   mapStates[key] = {
     map,
-    poly,
+    basePoly,
+    glowPoly,
     latlngs,
     playing:false,
     idx:0,
     rafId:null
   };
+}
+
+function startAnimation(planId, day, btn){
+  const key = `${planId}_${day}`;
+  const st = mapStates[key];
+  if(!st || !st.latlngs || !st.latlngs.length) return;
+
+  // Reset glow poly ke titik awal saja
+  st.glowPoly.setLatLngs([st.latlngs[0]]);
+  st.idx = 1;
+  st.playing = true;
+
+  const status = document.getElementById(`map-status-${planId}-${day}`);
+  if(status) status.textContent = 'Playing • animasi route berjalan...';
+  btn.textContent = '⏸ Stop';
+
+  if(st.rafId) cancelAnimationFrame(st.rafId);
+
+  const step = ()=>{
+    if(!st.playing) return;
+
+    if(st.idx >= st.latlngs.length){
+      st.playing = false;
+      st.rafId = null;
+      btn.textContent = '▶ Replay';
+      if(status) status.textContent = 'Selesai • route full tergambar';
+      return;
+    }
+
+    const pts = st.glowPoly.getLatLngs();
+    pts.push(st.latlngs[st.idx]);
+    st.glowPoly.setLatLngs(pts);
+    st.idx++;
+
+    st.rafId = requestAnimationFrame(step);
+  };
+
+  st.rafId = requestAnimationFrame(step);
+}
+
+function stopAnimation(planId, day, btn){
+  const key = `${planId}_${day}`;
+  const st = mapStates[key];
+  if(!st) return;
+
+  st.playing = false;
+  if(st.rafId) cancelAnimationFrame(st.rafId);
+  st.rafId = null;
+
+  const status = document.getElementById(`map-status-${planId}-${day}`);
+  if(status) status.textContent = 'Paused • bisa lanjut lagi atau replay dari awal';
+  btn.textContent = '▶ Resume';
 }
   
 /* ===== EVENT HANDLER ===== */
@@ -1268,3 +1325,4 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
 
 </body>
 </html>
+
