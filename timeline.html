@@ -1173,14 +1173,16 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
   renderSummary();
   renderTimeline();
 })();
-  function formatPaceFromSec(sec){
-  if(sec == null || isNaN(sec)) return '-';
-  const m = Math.floor(sec / 60);
-  const s = Math.round(sec % 60);
-  return m + ':' + (s < 10 ? '0' + s : s);
+ function formatPaceFromSec(sec) {
+  if (sec == null || isNaN(sec) || sec <= 0) return '-';
+  const total = Math.round(sec);           // buletin dulu
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m + ':' + (s < 10 ? '0' + s : s); // 6:04, 5:09, dst
 }
 </script>
 
 </body>
 </html>
+
 
