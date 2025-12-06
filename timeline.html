@@ -1134,20 +1134,41 @@ function initMiniMap(planId, day){
     keyboard:false
   });
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom:18
+  // 🔥 DARK MAP biar nyatu sama tema cyberpunk
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    subdomains: 'abcd'
   }).addTo(map);
 
-  const poly = L.polyline([], {color:'#00eaff',weight:3}).addTo(map);
+  // Route warna neon
+  const poly = L.polyline([], {
+    color: '#00eaff',
+    weight: 4,
+    opacity: 0.95
+  }).addTo(map);
 
   L.circleMarker(latlngs[0], {
-    radius:3,color:'#b0ff4d',fillColor:'#b0ff4d',fillOpacity:1
+    radius:3, color:'#b0ff4d', fillColor:'#b0ff4d', fillOpacity:1
   }).addTo(map);
   if(latlngs.length>1){
     L.circleMarker(latlngs[latlngs.length-1], {
-      radius:3,color:'#ff4dff',fillColor:'#ff4dff',fillOpacity:1
+      radius:3, color:'#ff4dff', fillColor:'#ff4dff', fillOpacity:1
     }).addTo(map);
   }
+
+  map.fitBounds(L.latLngBounds(latlngs), {padding:[6,6]});
+
+  const key = `${planId}_${day}`;
+  mapStates[key] = {
+    map,
+    poly,
+    latlngs,
+    playing:false,
+    idx:0,
+    rafId:null
+  };
+}
+
 
   map.fitBounds(L.latLngBounds(latlngs), {padding:[6,6]});
 
@@ -1290,3 +1311,4 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
 
 </body>
 </html>
+
