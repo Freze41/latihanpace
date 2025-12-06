@@ -270,15 +270,12 @@ main{
   gap:6px;
 }
 .splits-pill{
-  padding:2px 6px;
+  padding:2px 8px;
   border-radius:999px;
   border:1px solid #2a2a44;
   background:#060612;
   color:#e8ffff;
-}
-.splits-pill .label-km{
-  color:#9fa8ff;
-  margin-right:2px;
+  white-space:nowrap;
 }
 
 /* MINI MAP + CONTROLS */
@@ -288,10 +285,13 @@ main{
 .mini-map{
   margin-top:4px;
   height:150px;
+  width:100%;
+  position:relative;
   border-radius:10px;
   overflow:hidden;
   background:#050510;
   box-shadow:0 0 10px #00eaff55;
+  z-index:0;
 }
 .map-placeholder{
   font-size:11px;
@@ -561,16 +561,18 @@ const mapStates = {};     // key: planId_day
 
 /* ===== UTIL ===== */
 function formatPace(sec){
-  if(sec==null || isNaN(sec)) return '-';
-  const m = Math.floor(sec/60);
-  const s = sec%60;
+  if(sec==null || isNaN(sec) || sec <= 0) return '-';
+  const total = Math.round(sec);
+  const m = Math.floor(total/60);
+  const s = total%60;
   return m+':' + (s<10?'0'+s:s);
 }
 function formatDuration(sec){
-  if(sec==null || isNaN(sec)) return '-';
-  const h = Math.floor(sec/3600);
-  const m = Math.floor((sec%3600)/60);
-  const s = Math.floor(sec%60);
+  if(sec==null || isNaN(sec) || sec < 0) return '-';
+  const total = Math.round(sec);
+  const h = Math.floor(total/3600);
+  const m = Math.floor((total%3600)/60);
+  const s = total%60;
   if(h>0) return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   return `${m}:${s.toString().padStart(2,'0')}`;
 }
@@ -933,7 +935,7 @@ function renderTimeline(){
       const items = log.splits.map(s=>{
         const km = s.km;
         const paceStr = formatPace(s.paceSec);
-        return `<span class="splits-pill"><span class="label-km">KM ${km}</span>${paceStr} /km</span>`;
+        return `<span class="splits-pill">KM ${km} = ${paceStr}/km</span>`;
       }).join('');
       splitsHtml = `
         <div class="splits">
@@ -1173,11 +1175,7 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
   renderSummary();
   renderTimeline();
 })();
-
 </script>
 
 </body>
 </html>
-
-
-
