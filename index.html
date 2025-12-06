@@ -77,6 +77,12 @@
       text-transform:uppercase;
     }
 
+    .header-right{
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+
     nav{
       display:flex;
       align-items:center;
@@ -91,6 +97,7 @@
       border:1px solid transparent;
       color:#cfd7ff;
       cursor:pointer;
+      transition:.18s ease border-color,.18s ease background,.18s ease color;
     }
     .nav-link:hover{
       border-color:rgba(0,234,255,0.8);
@@ -101,6 +108,48 @@
       background:linear-gradient(90deg,rgba(0,234,255,0.1),rgba(255,77,255,0.2));
       box-shadow:0 0 12px rgba(255,77,255,0.6);
     }
+    .nav-active{
+      border-color:rgba(0,234,255,0.9);
+      background:rgba(0,234,255,0.16);
+      color:#ffffff;
+    }
+
+    /* Clock in header */
+    .clock-box{
+      min-width:170px;
+      padding:6px 10px;
+      border-radius:12px;
+      border:1px solid rgba(0,234,255,0.5);
+      background:rgba(5,5,25,0.85);
+      font-family:'Orbitron',sans-serif;
+      font-size:0.8rem;
+      text-align:right;
+      box-shadow:0 0 12px rgba(0,234,255,0.35);
+    }
+    .clock-label{
+      text-transform:uppercase;
+      letter-spacing:0.14em;
+      font-size:0.6rem;
+      color:#9feaff;
+      margin-bottom:3px;
+      opacity:0.8;
+    }
+    .clock-time{
+      font-size:1rem;
+      color:var(--accent-lime);
+    }
+    .clock-date{
+      margin-top:1px;
+      font-size:0.7rem;
+      color:#d6e6ff;
+      opacity:0.85;
+    }
+    .clock-focus{
+      margin-top:2px;
+      font-size:0.65rem;
+      color:#9feaff;
+      opacity:0.9;
+    }
 
     @media (max-width:720px){
       header{
@@ -108,10 +157,15 @@
         align-items:flex-start;
         gap:8px;
       }
-      nav{
+      .header-right{
         width:100%;
-        justify-content:flex-end;
+        justify-content:space-between;
         flex-wrap:wrap;
+        gap:10px;
+      }
+      nav{
+        flex-wrap:wrap;
+        justify-content:flex-start;
       }
     }
 
@@ -230,7 +284,7 @@
       box-shadow:0 0 10px #18ff92;
     }
 
-    /* Hero right: running animation */
+    /* Hero right: RUNNER animation */
     .hero-kanan{
       position:relative;
       padding:14px 16px 18px;
@@ -297,36 +351,158 @@
     .track-line:nth-child(2){transform:scaleX(0.9);opacity:0.5;}
     .track-line:nth-child(1){transform:scaleX(0.8);opacity:0.4;}
 
-    .runner-wrap{
+    /* Runner figure */
+    .runner-scene{
       position:relative;
       height:120px;
       overflow:hidden;
     }
-    .runner-emoji{
+    .runner-track{
       position:absolute;
-      bottom:22px;
-      left:-15%;
-      font-size:64px;
-      text-shadow:0 0 12px rgba(0,0,0,0.7);
-      filter:drop-shadow(0 0 10px rgba(0,234,255,0.9));
-      animation:runnerMove 3.4s linear infinite;
+      left:-10%;
+      right:-10%;
+      bottom:18px;
+      height:3px;
+      border-radius:999px;
+      background:linear-gradient(90deg,rgba(0,234,255,0),rgba(0,234,255,0.9),rgba(255,77,255,0.9),rgba(0,234,255,0));
+      box-shadow:0 0 12px rgba(0,234,255,0.7);
+      opacity:0.9;
     }
-    .runner-ghost{
+    .runner-shadow{
+      position:absolute;
+      bottom:16px;
+      left:10%;
+      width:48px;
+      height:12px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(0,0,0,0.7),transparent 65%);
+      opacity:0.6;
+      filter:blur(2px);
+      animation:runnerForward 3.4s linear infinite;
+    }
+    .runner-figure{
       position:absolute;
       bottom:22px;
-      left:-20%;
-      font-size:64px;
-      opacity:0.17;
-      filter:blur(1px);
-      animation:runnerMove 3.4s linear infinite;
-      animation-delay:-0.18s;
+      left:10%;
+      width:46px;
+      height:76px;
+      animation:runnerForward 3.4s linear infinite;
+      filter:drop-shadow(0 0 10px rgba(0,234,255,0.9));
+    }
+    .runner-core{
+      position:relative;
+      width:100%;
+      height:100%;
+    }
+    .runner-head{
+      position:absolute;
+      top:0;
+      left:50%;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 20%,#ffffff,#c0f7ff);
+      transform:translateX(-50%);
+      box-shadow:0 0 10px rgba(255,255,255,0.9);
+    }
+    .runner-body{
+      position:absolute;
+      top:16px;
+      left:50%;
+      width:10px;
+      height:26px;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--accent-cyan),var(--accent-magenta));
+      transform:translateX(-50%);
     }
 
-    @keyframes runnerMove{
-      0%{transform:translateX(0) translateY(0);}
-      40%{transform:translateX(70vw) translateY(-4px);}
-      60%{transform:translateX(70vw) translateY(0);}
-      100%{transform:translateX(0) translateY(0);}
+    .runner-arm{
+      position:absolute;
+      top:18px;
+      width:7px;
+      height:24px;
+      border-radius:999px;
+      background:linear-gradient(180deg,rgba(0,234,255,0.9),rgba(255,77,255,0.8));
+      transform-origin:top center;
+      box-shadow:0 0 6px rgba(0,234,255,0.9);
+    }
+    .runner-arm.left{
+      left:50%;
+      transform:translateX(-50%) rotate(30deg);
+      animation:armLeftRun 0.55s linear infinite;
+    }
+    .runner-arm.right{
+      left:50%;
+      transform:translateX(-50%) rotate(-30deg);
+      animation:armRightRun 0.55s linear infinite;
+    }
+
+    .runner-leg{
+      position:absolute;
+      top:34px;
+      width:8px;
+      height:30px;
+      border-radius:999px;
+      background:linear-gradient(180deg,rgba(0,234,255,0.95),rgba(176,255,77,0.9));
+      transform-origin:top center;
+      box-shadow:0 0 8px rgba(0,234,255,0.9);
+    }
+    .runner-leg.left{
+      left:50%;
+      transform:translateX(-50%) rotate(-18deg);
+      animation:legLeftRun 0.55s linear infinite;
+    }
+    .runner-leg.right{
+      left:50%;
+      transform:translateX(-50%) rotate(20deg);
+      animation:legRightRun 0.55s linear infinite;
+    }
+
+    .runner-foot{
+      position:absolute;
+      bottom:-4px;
+      left:50%;
+      width:14px;
+      height:6px;
+      border-radius:999px;
+      background:linear-gradient(90deg,#ffffff,#b0ff4d);
+      transform:translateX(-60%);
+      box-shadow:0 0 8px rgba(176,255,77,0.9);
+    }
+
+    @keyframes runnerForward{
+      0%{transform:translateX(0);}
+      40%{transform:translateX(60vw);}
+      60%{transform:translateX(60vw);}
+      100%{transform:translateX(0);}
+    }
+    @keyframes legLeftRun{
+      0%{transform:translateX(-50%) rotate(-15deg);}
+      25%{transform:translateX(-50%) rotate(20deg);}
+      50%{transform:translateX(-50%) rotate(10deg);}
+      75%{transform:translateX(-50%) rotate(-25deg);}
+      100%{transform:translateX(-50%) rotate(-15deg);}
+    }
+    @keyframes legRightRun{
+      0%{transform:translateX(-50%) rotate(20deg);}
+      25%{transform:translateX(-50%) rotate(-20deg);}
+      50%{transform:translateX(-50%) rotate(-10deg);}
+      75%{transform:translateX(-50%) rotate(25deg);}
+      100%{transform:translateX(-50%) rotate(20deg);}
+    }
+    @keyframes armLeftRun{
+      0%{transform:translateX(-50%) rotate(30deg);}
+      25%{transform:translateX(-50%) rotate(-15deg);}
+      50%{transform:translateX(-50%) rotate(-5deg);}
+      75%{transform:translateX(-50%) rotate(35deg);}
+      100%{transform:translateX(-50%) rotate(30deg);}
+    }
+    @keyframes armRightRun{
+      0%{transform:translateX(-50%) rotate(-30deg);}
+      25%{transform:translateX(-50%) rotate(15deg);}
+      50%{transform:translateX(-50%) rotate(5deg);}
+      75%{transform:translateX(-50%) rotate(-35deg);}
+      100%{transform:translateX(-50%) rotate(-30deg);}
     }
 
     .speed-bars{
@@ -371,6 +547,29 @@
       font-size:10px;
       color:#bac6ff;
       margin-top:1px;
+    }
+
+    /* Scroll hint */
+    .scroll-hint{
+      text-align:center;
+      font-size:11px;
+      color:#9ca8ff;
+      opacity:.85;
+      margin:-4px 0 10px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+    }
+    .scroll-arrow{
+      font-size:14px;
+      animation:scrollPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes scrollPulse{
+      0%,100%{transform:translateY(0);opacity:.6;}
+      50%{transform:translateY(3px);opacity:1;}
     }
 
     /* Section cards */
@@ -602,12 +801,12 @@
       line-height:1.6;
     }
 
-    /* AI Coach Floating Bubble */
+    /* AI Coach Floating Bubble (Welcome) */
     .ai-bubble{
       position:fixed;
       right:14px;
       bottom:18px;
-      width:240px;
+      width:260px;
       max-width:80vw;
       background:radial-gradient(circle at 0 0,#ffffff,#caffff);
       color:#001018;
@@ -714,12 +913,20 @@
     </div>
   </div>
 
-  <nav>
-    <a href="#programs" class="nav-link">Program</a>
-    <a href="plan5k.html" class="nav-link">5K Desember</a>
-    <a href="Plan10k.html" class="nav-link">10K Januari</a>
-    <a href="timeline.html" class="nav-link nav-cta">Session Timeline</a>
-  </nav>
+  <div class="header-right">
+    <nav>
+      <a href="#programs" class="nav-link">Program</a>
+      <a href="plan5k.html" class="nav-link">5K Desember</a>
+      <a href="Plan10k.html" class="nav-link">10K Januari</a>
+      <a href="timeline.html" class="nav-link nav-cta">Session Timeline</a>
+    </nav>
+    <div class="clock-box">
+      <div class="clock-label">Waktu lokal</div>
+      <div class="clock-time" id="clockTime">--:--</div>
+      <div class="clock-date" id="clockDate">-</div>
+      <div class="clock-focus" id="clockFocus">Fokus hari ini: Easy run santai.</div>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -759,12 +966,12 @@
       </div>
     </div>
 
-    <!-- HERO KANAN: running animation -->
+    <!-- HERO KANAN: RUNNER preview -->
     <div class="hero-kanan">
       <div class="hero-kanan-label">Live Preview</div>
       <div class="hero-kanan-title">
-        <span>Runner Scene • Rama</span>
-        <span class="hero-chip">Auto TCX • Map • Stats</span>
+        <span>Neon Runner • Motion Preview</span>
+        <span class="hero-chip">Form • Pace • Flow</span>
       </div>
 
       <div class="track-scene">
@@ -774,9 +981,25 @@
           <div class="track-line"></div>
         </div>
 
-        <div class="runner-wrap">
-          <div class="runner-ghost">🏃‍♂️</div>
-          <div class="runner-emoji">🏃‍♂️</div>
+        <div class="runner-scene">
+          <div class="runner-track"></div>
+          <div class="runner-shadow"></div>
+          <div class="runner-figure">
+            <div class="runner-core">
+              <div class="runner-head"></div>
+              <div class="runner-body"></div>
+
+              <div class="runner-arm left"></div>
+              <div class="runner-arm right"></div>
+
+              <div class="runner-leg left">
+                <div class="runner-foot"></div>
+              </div>
+              <div class="runner-leg right">
+                <div class="runner-foot"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="speed-bars"></div>
@@ -802,6 +1025,12 @@
     </div>
   </section>
 
+  <!-- SCROLL HINT -->
+  <div class="scroll-hint">
+    <span>Scroll ke program</span>
+    <span class="scroll-arrow">⬇</span>
+  </div>
+
   <!-- PROGRAM CARDS + AI COACH -->
   <section id="programs" class="section">
     <div class="section-title">Pilih program</div>
@@ -814,7 +1043,7 @@
       <!-- 5K DES -->
       <a href="plan5k.html" class="program-card">
         <div class="program-tagline">Base → Build → Peak • Desember</div>
-        <div class="program-title"><span class="num">5K</span> Sub-30 Plan</div>
+        <div class="program-title"><span class="num">5K</span> Sub-30 Plan 🏃‍♂️</div>
         <div class="program-meta">
           Fokus di kombinasi <strong>easy run</strong>, <strong>tempo pendek</strong>,
           dan <strong>interval 200–400m</strong> buat ngedorong pace tanpa bikin badan shock.
@@ -841,7 +1070,7 @@
       <!-- 10K JAN -->
       <a href="Plan10k.html" class="program-card">
         <div class="program-tagline">Build → Specific → Race Sim • Januari</div>
-        <div class="program-title"><span class="num">10K</span> Sub-60 Plan</div>
+        <div class="program-title"><span class="num">10K</span> Sub-60 Plan 🛸</div>
         <div class="program-meta">
           Lanjutan dari Desember: mileage dinaikkan pelan, tambah
           <strong>tempo 20–30 menit</strong> dan <strong>long 10–11 km</strong>
@@ -941,12 +1170,12 @@
   </span>
 </footer>
 
-<!-- AI Coach Bubble -->
+<!-- AI Coach Welcome Bubble -->
 <div id="aiBubble" class="ai-bubble">
   <div class="ai-bubble-header">
     <div class="ai-bubble-title">
       <div class="ai-avatar">🤖</div>
-      <span>RamaBot · AI Coach</span>
+      <span>RamaBot · Selamat datang</span>
     </div>
     <button id="aiBubbleToggle" class="ai-bubble-toggle" title="Tutup">×</button>
   </div>
@@ -961,6 +1190,45 @@
 <script>
   // Tahun otomatis di footer
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Jam + tanggal + fokus harian di header
+  function updateClock(){
+    const timeEl   = document.getElementById('clockTime');
+    const dateEl   = document.getElementById('clockDate');
+    const focusEl  = document.getElementById('clockFocus');
+    if(!timeEl) return;
+
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,"0");
+    const m = String(now.getMinutes()).padStart(2,"0");
+    timeEl.textContent = `${h}:${m}`;
+
+    if(dateEl){
+      const options = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      };
+      dateEl.textContent = now.toLocaleDateString('id-ID', options);
+    }
+
+    if(focusEl){
+      const day = now.getDay(); // 0 Minggu ... 6 Sabtu
+      const focuses = {
+        0: 'Rest day lembut: jalan santai / stretching.',
+        1: 'Easy run pendek + sedikit mobility.',
+        2: 'Sedikit tempo atau interval ringan.',
+        3: 'Easy run recovery, pace senyaman mungkin.',
+        4: 'Latihan kunci (tempo / interval) kalau badan siap.',
+        5: 'Easy run / shakeout, jangan kebablasan.',
+        6: 'Long run santai, nikmati jaraknya.'
+      };
+      focusEl.textContent = 'Fokus hari ini: ' + (focuses[day] || 'Easy run santai yang konsisten.');
+    }
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
 
   // AI Coach: rekomendasi program
   const goalButtons = document.querySelectorAll('.ai-btn');
@@ -996,11 +1264,11 @@
     });
   });
 
-  // AI Coach Bubble tips random
-  const aiBubble      = document.getElementById('aiBubble');
-  const aiBubbleText  = document.getElementById('aiBubbleText');
-  const aiBubbleToggle= document.getElementById('aiBubbleToggle');
-  const aiBubbleRefresh=document.getElementById('aiBubbleRefresh');
+  // AI Coach Bubble (selamat datang + tips)
+  const aiBubble       = document.getElementById('aiBubble');
+  const aiBubbleText   = document.getElementById('aiBubbleText');
+  const aiBubbleToggle = document.getElementById('aiBubbleToggle');
+  const aiBubbleRefresh= document.getElementById('aiBubbleRefresh');
 
   const tips = [
     'Easy run itu bukan lomba. Kalau masih bisa ngobrol, berarti pace-nya pas buat bangun aerobic base.',
@@ -1017,12 +1285,29 @@
     aiBubbleText.textContent = tips[idx];
   }
 
-  // buka bubble default
-  setRandomTip();
+  // Bubble selamat datang (pakai tanggal & jam sekarang)
+  function setWelcomeMessage(){
+    const now = new Date();
+    const options = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    };
+    const tanggal = now.toLocaleDateString('id-ID', options);
+    const h = String(now.getHours()).padStart(2,"0");
+    const m = String(now.getMinutes()).padStart(2,"0");
+
+    aiBubbleText.textContent =
+      `Selamat datang di Rama Runna Pro, Rama! Hari ini ${tanggal}, jam ${h}:${m}. ` +
+      `Pilih dulu mau fokus 5K atau 10K, lalu pakai timeline buat nyimpen semua sesi larianmu.`;
+  }
+
+  // buka bubble dengan pesan selamat datang
+  setWelcomeMessage();
   aiBubble.classList.add('show');
 
   aiBubbleToggle.addEventListener('click', ()=>{
-    // toggle show/hide
     if(aiBubble.classList.contains('show')){
       aiBubble.classList.remove('show');
     }else{
@@ -1031,6 +1316,37 @@
   });
 
   aiBubbleRefresh.addEventListener('click', setRandomTip);
+
+  // Smooth scroll untuk link anchor (#programs)
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function(e){
+      const targetId = this.getAttribute('href');
+      if(targetId === '#' || !targetId) return;
+      const targetEl = document.querySelector(targetId);
+      if(targetEl){
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    });
+  });
+
+  // Nav Program auto-active saat section terlihat
+  const programsSection = document.getElementById('programs');
+  const programNavLink  = document.querySelector('a[href="#programs"]');
+
+  if (programsSection && programNavLink) {
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          programNavLink.classList.add('nav-active');
+        } else {
+          programNavLink.classList.remove('nav-active');
+        }
+      });
+    }, { threshold:0.3 });
+
+    observer.observe(programsSection);
+  }
 </script>
 
 </body>
