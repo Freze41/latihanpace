@@ -1338,9 +1338,28 @@ function saveSessionToSharedStorage(summary){
     console.warn('Gagal simpan session ke storage bersama', e);
   }
 }
+  // --- SHARED STORAGE UNTUK LANDING + TIMELINE ---
+const SHARED_STORAGE_KEY = 'RAMA_RUNNA_TIMELINE_V1';
+
+function saveSessionToSharedStorage(summary){
+  try{
+    const raw = localStorage.getItem(SHARED_STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+
+    arr.push({
+      ...summary,
+      createdAt: new Date().toISOString()
+    });
+
+    localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(arr));
+  }catch(e){
+    console.warn('Gagal simpan session ke storage bersama', e);
+  }
+}
 </script>
 
 </body>
 </html>
+
 
 
