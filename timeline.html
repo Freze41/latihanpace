@@ -49,6 +49,13 @@ header .left{
 header .icon{font-size:24px;}
 header .title-main{font-size:18px;letter-spacing:0.16em;}
 header .title-sub{font-size:10px;letter-spacing:0.18em;color:#9fdcff;text-transform:uppercase;}
+
+/* container untuk tombol kanan */
+header .header-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
 header .back-btn{
   font-size:11px;
   color:#9feaff;
@@ -62,6 +69,17 @@ header .back-btn{
 header .back-btn:hover{
   border-color:#00eaff;
   box-shadow:0 0 8px #00eaff80;
+}
+
+@media(max-width:520px){
+  header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+  header .header-right{
+    align-self:flex-end;
+  }
 }
 
 /* CONTAINER */
@@ -506,7 +524,10 @@ footer{
       <div class="title-sub">SESSION TIMELINE + MINI MAP</div>
     </div>
   </div>
-  <button id="backToCalendar" class="back-btn">← Kembali ke Kalender</button>
+  <div class="header-right">
+    <button id="backToLanding" class="back-btn">🏠 Landing</button>
+    <button id="backToCalendar" class="back-btn">← Kalender</button>
+  </div>
 </header>
 
 <main>
@@ -629,6 +650,25 @@ let ENTRIES = [];         // gabungan semua plan
 let currentFilter = 'all';
 let currentShoeFilter = 'all';
 const mapStates = {};     // key: planId_day
+
+/* ===== SHARED STORAGE UNTUK LANDING + TIMELINE ===== */
+const SHARED_STORAGE_KEY = 'RAMA_RUNNA_TIMELINE_V1';
+
+function saveSessionToSharedStorage(summary){
+  try{
+    const raw = localStorage.getItem(SHARED_STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+
+    arr.push({
+      ...summary,
+      createdAt: new Date().toISOString()
+    });
+
+    localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(arr));
+  }catch(e){
+    console.warn('Gagal simpan session ke storage bersama', e);
+  }
+}
 
 /* ===== UTIL ===== */
 function formatPace(sec){
@@ -1291,28 +1331,43 @@ document.addEventListener('click', e=>{
   }
 });
 
-/* ===== MODAL PILIH PLAN ===== */
+/* ===== MODAL PILIH PLAN + BACK TO LANDING ===== */
 const planModal = document.getElementById('planModal');
 const backBtn = document.getElementById('backToCalendar');
+const backLandingBtn = document.getElementById('backToLanding');
 const modalCloseBtn = document.getElementById('planModalClose');
 
-backBtn.addEventListener('click', ()=>{
-  planModal.classList.add('show');
-});
-modalCloseBtn.addEventListener('click', ()=>{
-  planModal.classList.remove('show');
-});
-planModal.addEventListener('click', (e)=>{
-  if(e.target === planModal){
+if(backBtn){
+  backBtn.addEventListener('click', ()=>{
+    planModal.classList.add('show');
+  });
+}
+if(modalCloseBtn){
+  modalCloseBtn.addEventListener('click', ()=>{
     planModal.classList.remove('show');
-  }
-});
+  });
+}
+if(planModal){
+  planModal.addEventListener('click', (e)=>{
+    if(e.target === planModal){
+      planModal.classList.remove('show');
+    }
+  });
+}
 document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const target = btn.getAttribute('data-target');
     if(target) window.location.href = target;
   });
 });
+
+// tombol balik ke landing page
+if(backLandingBtn){
+  backLandingBtn.addEventListener('click', ()=>{
+    // ganti 'index.html' sesuai nama file landing kamu
+    window.location.href = 'index.html';
+  });
+}
 
 /* ===== INIT ===== */
 (function init(){
@@ -1321,45 +1376,7 @@ document.querySelectorAll('.plan-option-btn[data-target]').forEach(btn=>{
   renderSummary();
   renderTimeline();
 })();
-  const SHARED_STORAGE_KEY = 'RAMA_RUNNA_TIMELINE_V1';
-
-function saveSessionToSharedStorage(summary){
-  try{
-    const raw = localStorage.getItem(SHARED_STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-
-    arr.push({
-      ...summary,
-      createdAt: new Date().toISOString()
-    });
-
-    localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(arr));
-  }catch(e){
-    console.warn('Gagal simpan session ke storage bersama', e);
-  }
-}
-  // --- SHARED STORAGE UNTUK LANDING + TIMELINE ---
-const SHARED_STORAGE_KEY = 'RAMA_RUNNA_TIMELINE_V1';
-
-function saveSessionToSharedStorage(summary){
-  try{
-    const raw = localStorage.getItem(SHARED_STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-
-    arr.push({
-      ...summary,
-      createdAt: new Date().toISOString()
-    });
-
-    localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(arr));
-  }catch(e){
-    console.warn('Gagal simpan session ke storage bersama', e);
-  }
-}
 </script>
 
 </body>
 </html>
-
-
-
