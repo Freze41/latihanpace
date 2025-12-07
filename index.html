@@ -151,27 +151,165 @@
       opacity:0.9;
     }
 
+    /* Responsive header tweaks */
+    @media (max-width:900px){
+      header{
+        padding:10px 4vw 6px;
+      }
+      .logo-text-main{
+        font-size:16px;
+      }
+      .logo-text-sub{
+        font-size:8px;
+      }
+      .clock-box{
+        min-width:140px;
+        font-size:0.7rem;
+        padding:6px 8px;
+      }
+      .clock-time{
+        font-size:0.9rem;
+      }
+      .clock-date,
+      .clock-focus{
+        font-size:0.6rem;
+      }
+    }
+
     @media (max-width:720px){
       header{
         flex-direction:column;
         align-items:flex-start;
         gap:8px;
+        padding:12px 4vw 8px;
       }
       .header-right{
         width:100%;
         justify-content:space-between;
         flex-wrap:wrap;
-        gap:10px;
+        gap:8px;
       }
       nav{
         flex-wrap:wrap;
+        justify-content:flex-start;
+        gap:8px;
+        font-size:10px;
+      }
+      .nav-link{
+        padding:5px 10px;
+      }
+      .clock-box{
+        min-width:100%;
+        text-align:left;
+        margin-top:4px;
+      }
+    }
+
+    @media (max-width:480px){
+      .logo{
+        gap:6px;
+      }
+      .logo-icon{
+        font-size:22px;
+      }
+      .logo-text-main{
+        font-size:14px;
+      }
+      .logo-text-sub{
+        font-size:7px;
+      }
+      nav{
+        font-size:9px;
+        letter-spacing:0.1em;
+      }
+      .nav-link{
+        padding:4px 8px;
+      }
+    }
+
+    /* TODAY OVERVIEW STRIP */
+    .today-strip{
+      padding:6px 6vw 8px;
+      border-bottom:1px solid #15152f;
+      background:rgba(5,5,20,0.9);
+      box-shadow:0 8px 18px rgba(0,0,0,0.55);
+      position:relative;
+      z-index:15;
+    }
+    .today-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      font-size:11px;
+      flex-wrap:wrap;
+    }
+    .today-left,
+    .today-middle,
+    .today-right{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .today-label{
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      color:#9feaff;
+      font-size:10px;
+      opacity:0.9;
+    }
+    .today-date{
+      color:#fefefe;
+      font-weight:600;
+      white-space:nowrap;
+    }
+    .today-plan{
+      color:#d0d9ff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .today-right-row{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .today-status{
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(176,255,77,0.7);
+      color:#e8ffe0;
+      font-size:10px;
+      white-space:nowrap;
+    }
+    .today-link{
+      font-size:10px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:#cfd7ff;
+      text-decoration:none;
+      border-bottom:1px dotted rgba(0,234,255,0.7);
+    }
+
+    @media(max-width:720px){
+      .today-inner{
+        align-items:flex-start;
+      }
+      .today-right{
+        width:100%;
+        align-items:flex-start;
+      }
+      .today-right-row{
         justify-content:flex-start;
       }
     }
 
     /* Hero */
     .hero{
-      padding:26px 6vw 18px;
+      padding:24px 6vw 18px;
       display:grid;
       grid-template-columns: minmax(0,1.2fr) minmax(0,1fr);
       gap:32px;
@@ -180,7 +318,7 @@
     @media (max-width:860px){
       .hero{
         grid-template-columns:1fr;
-        padding-top:22px;
+        padding-top:20px;
       }
     }
 
@@ -284,7 +422,7 @@
       box-shadow:0 0 10px #18ff92;
     }
 
-    /* Hero right: RUNNER animation */
+    /* Hero right: ECG / Heartbeat Preview */
     .hero-kanan{
       position:relative;
       padding:14px 16px 18px;
@@ -307,7 +445,7 @@
     .hero-kanan-title{
       font-size:14px;
       color:#e8ffff;
-      margin-bottom:10px;
+      margin-bottom:6px;
       display:flex;
       justify-content:space-between;
       gap:8px;
@@ -324,12 +462,13 @@
       letter-spacing:0.12em;
     }
 
+    /* Full-width ECG area */
     .track-scene{
       position:relative;
       margin-top:4px;
-      padding:16px 10px 14px;
-      border-radius:14px;
-      background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.15),transparent 55%);
+      padding:6px 0 10px;
+      border-radius:0;
+      background:transparent;
       overflow:hidden;
     }
 
@@ -341,174 +480,99 @@
       justify-content:flex-end;
       gap:6px;
       pointer-events:none;
+      opacity:0.4;
     }
     .track-line{
       height:2px;
       border-radius:999px;
-      background:linear-gradient(90deg,transparent,rgba(0,234,255,0.8),rgba(255,77,255,0.8),transparent);
-      opacity:0.6;
+      background:linear-gradient(90deg,transparent,rgba(0,234,255,0.7),rgba(255,77,255,0.7),transparent);
     }
-    .track-line:nth-child(2){transform:scaleX(0.9);opacity:0.5;}
-    .track-line:nth-child(1){transform:scaleX(0.8);opacity:0.4;}
+    .track-line:nth-child(2){transform:scaleX(0.9);opacity:0.7;}
+    .track-line:nth-child(1){transform:scaleX(0.8);opacity:0.5;}
 
-    /* Runner figure */
-    .runner-scene{
+    /* ECG Heartbeat Line */
+    .ecg-scene{
       position:relative;
-      height:120px;
+      height:110px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       overflow:hidden;
-    }
-    .runner-track{
-      position:absolute;
-      left:-10%;
-      right:-10%;
-      bottom:18px;
-      height:3px;
-      border-radius:999px;
-      background:linear-gradient(90deg,rgba(0,234,255,0),rgba(0,234,255,0.9),rgba(255,77,255,0.9),rgba(0,234,255,0));
-      box-shadow:0 0 12px rgba(0,234,255,0.7);
-      opacity:0.9;
-    }
-    .runner-shadow{
-      position:absolute;
-      bottom:16px;
-      left:10%;
-      width:48px;
-      height:12px;
-      border-radius:50%;
-      background:radial-gradient(circle,rgba(0,0,0,0.7),transparent 65%);
-      opacity:0.6;
-      filter:blur(2px);
-      animation:runnerForward 3.4s linear infinite;
-    }
-    .runner-figure{
-      position:absolute;
-      bottom:22px;
-      left:10%;
-      width:46px;
-      height:76px;
-      animation:runnerForward 3.4s linear infinite;
-      filter:drop-shadow(0 0 10px rgba(0,234,255,0.9));
-    }
-    .runner-core{
-      position:relative;
       width:100%;
-      height:100%;
     }
-    .runner-head{
+    .ecg-base-line{
       position:absolute;
-      top:0;
-      left:50%;
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:radial-gradient(circle at 30% 20%,#ffffff,#c0f7ff);
-      transform:translateX(-50%);
-      box-shadow:0 0 10px rgba(255,255,255,0.9);
+      left:0;
+      right:0;
+      top:50%;
+      transform:translateY(-50%);
+      height:2px;
+      background:linear-gradient(90deg,
+        rgba(0,234,255,0.25),
+        rgba(0,234,255,0.6),
+        rgba(255,77,255,0.6),
+        rgba(0,234,255,0.25)
+      );
+      opacity:0.65;
     }
-    .runner-body{
+    .ecg-svg{
+      width:100%;
+      height:90px;
+      max-width:none;
+      filter:
+        drop-shadow(0 0 10px rgba(0,234,255,0.9))
+        drop-shadow(0 0 18px rgba(255,77,255,0.7));
+    }
+    .ecg-path,
+    .ecg-glow{
+      fill:none;
+      stroke-linejoin:round;
+      stroke-linecap:round;
+      stroke-dasharray:600;
+      stroke-dashoffset:600;
+      animation:ecgDash 3.8s linear infinite;
+      will-change:stroke-dashoffset;
+    }
+    .ecg-path{
+      stroke:url(#ecgGradientMain);
+      stroke-width:2.3;
+    }
+    .ecg-glow{
+      stroke:url(#ecgGradientSoft);
+      stroke-width:6;
+      opacity:0.55;
+      filter:blur(4px);
+    }
+
+    .ecg-pulse-dot{
       position:absolute;
-      top:16px;
-      left:50%;
+      top:50%;
       width:10px;
-      height:26px;
-      border-radius:999px;
-      background:linear-gradient(180deg,var(--accent-cyan),var(--accent-magenta));
-      transform:translateX(-50%);
+      height:10px;
+      border-radius:50%;
+      background:radial-gradient(circle,#ffffff,#b0ff4d);
+      box-shadow:
+        0 0 10px rgba(176,255,77,0.9),
+        0 0 20px rgba(0,234,255,0.9);
+      transform:translate(-50%,-50%);
+      animation:ecgPulseDot 3.8s ease-in-out infinite;
     }
 
-    .runner-arm{
-      position:absolute;
-      top:18px;
-      width:7px;
-      height:24px;
-      border-radius:999px;
-      background:linear-gradient(180deg,rgba(0,234,255,0.9),rgba(255,77,255,0.8));
-      transform-origin:top center;
-      box-shadow:0 0 6px rgba(0,234,255,0.9);
+    @keyframes ecgDash{
+      0%{stroke-dashoffset:600;}
+      100%{stroke-dashoffset:0;}
     }
-    .runner-arm.left{
-      left:50%;
-      transform:translateX(-50%) rotate(30deg);
-      animation:armLeftRun 0.55s linear infinite;
-    }
-    .runner-arm.right{
-      left:50%;
-      transform:translateX(-50%) rotate(-30deg);
-      animation:armRightRun 0.55s linear infinite;
-    }
-
-    .runner-leg{
-      position:absolute;
-      top:34px;
-      width:8px;
-      height:30px;
-      border-radius:999px;
-      background:linear-gradient(180deg,rgba(0,234,255,0.95),rgba(176,255,77,0.9));
-      transform-origin:top center;
-      box-shadow:0 0 8px rgba(0,234,255,0.9);
-    }
-    .runner-leg.left{
-      left:50%;
-      transform:translateX(-50%) rotate(-18deg);
-      animation:legLeftRun 0.55s linear infinite;
-    }
-    .runner-leg.right{
-      left:50%;
-      transform:translateX(-50%) rotate(20deg);
-      animation:legRightRun 0.55s linear infinite;
-    }
-
-    .runner-foot{
-      position:absolute;
-      bottom:-4px;
-      left:50%;
-      width:14px;
-      height:6px;
-      border-radius:999px;
-      background:linear-gradient(90deg,#ffffff,#b0ff4d);
-      transform:translateX(-60%);
-      box-shadow:0 0 8px rgba(176,255,77,0.9);
-    }
-
-    @keyframes runnerForward{
-      0%{transform:translateX(0);}
-      40%{transform:translateX(60vw);}
-      60%{transform:translateX(60vw);}
-      100%{transform:translateX(0);}
-    }
-    @keyframes legLeftRun{
-      0%{transform:translateX(-50%) rotate(-15deg);}
-      25%{transform:translateX(-50%) rotate(20deg);}
-      50%{transform:translateX(-50%) rotate(10deg);}
-      75%{transform:translateX(-50%) rotate(-25deg);}
-      100%{transform:translateX(-50%) rotate(-15deg);}
-    }
-    @keyframes legRightRun{
-      0%{transform:translateX(-50%) rotate(20deg);}
-      25%{transform:translateX(-50%) rotate(-20deg);}
-      50%{transform:translateX(-50%) rotate(-10deg);}
-      75%{transform:translateX(-50%) rotate(25deg);}
-      100%{transform:translateX(-50%) rotate(20deg);}
-    }
-    @keyframes armLeftRun{
-      0%{transform:translateX(-50%) rotate(30deg);}
-      25%{transform:translateX(-50%) rotate(-15deg);}
-      50%{transform:translateX(-50%) rotate(-5deg);}
-      75%{transform:translateX(-50%) rotate(35deg);}
-      100%{transform:translateX(-50%) rotate(30deg);}
-    }
-    @keyframes armRightRun{
-      0%{transform:translateX(-50%) rotate(-30deg);}
-      25%{transform:translateX(-50%) rotate(15deg);}
-      50%{transform:translateX(-50%) rotate(5deg);}
-      75%{transform:translateX(-50%) rotate(-35deg);}
-      100%{transform:translateX(-50%) rotate(-30deg);}
+    @keyframes ecgPulseDot{
+      0%{left:0%;opacity:0;}
+      10%{left:0%;opacity:1;}
+      70%{left:100%;opacity:1;}
+      100%{left:100%;opacity:0;}
     }
 
     .speed-bars{
       position:absolute;
-      top:20px;
-      right:-40px;
+      top:18px;
+      right:-38px;
       width:140px;
       height:140px;
       border-radius:50%;
@@ -519,7 +583,7 @@
     }
 
     .hero-kanan-metrics{
-      margin-top:8px;
+      margin-top:6px;
       display:flex;
       flex-wrap:wrap;
       gap:10px;
@@ -699,6 +763,88 @@
       transform:translateY(1px);
     }
 
+    /* LAST SESSION CARD */
+    .last-session{
+      margin-top:20px;
+      padding:12px 14px 14px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#080818,#15153a);
+      border:1px solid rgba(0,234,255,0.5);
+      box-shadow:0 0 18px rgba(0,234,255,0.4);
+    }
+    .last-session-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:6px;
+      font-size:11px;
+    }
+    .last-label{
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      color:#9feaff;
+      font-size:10px;
+    }
+    .last-pill{
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,216,74,0.8);
+      background:#050510;
+      font-size:10px;
+      color:#ffeeb3;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      white-space:nowrap;
+    }
+    .last-main{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:10px;
+      font-size:11px;
+    }
+    .last-title{
+      font-family:'Orbitron',sans-serif;
+      font-size:14px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      margin-bottom:3px;
+    }
+    .last-sub{
+      color:#d0d9ff;
+    }
+    .last-meta{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      text-align:right;
+    }
+    .last-row{
+      color:#cfd7ff;
+      white-space:nowrap;
+    }
+    .last-link{
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      color:#fefefe;
+      text-decoration:none;
+      border-bottom:1px dotted rgba(0,234,255,0.8);
+    }
+    @media(max-width:600px){
+      .last-main{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .last-meta{
+        text-align:left;
+      }
+      .last-row{
+        white-space:normal;
+      }
+    }
+
     /* Features short list */
     .feature-list{
       margin-top:14px;
@@ -801,7 +947,7 @@
       line-height:1.6;
     }
 
-    /* AI Coach Floating Bubble (Welcome) */
+    /* AI Coach Floating Bubble (Tips) */
     .ai-bubble{
       position:fixed;
       right:14px;
@@ -884,6 +1030,85 @@
       }
     }
 
+    /* Welcome popup overlay */
+    .welcome-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,20,0.78);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .3s ease;
+      backdrop-filter:blur(4px);
+    }
+    .welcome-overlay.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .welcome-modal{
+      width:min(420px,90vw);
+      background:radial-gradient(circle at 0 0,#181842,#050510 70%);
+      border-radius:18px;
+      padding:16px 18px 14px;
+      border:1px solid rgba(0,234,255,0.6);
+      box-shadow:0 0 26px rgba(0,234,255,0.9);
+      color:#e8ffff;
+    }
+    .welcome-title{
+      font-family:'Orbitron',sans-serif;
+      font-size:14px;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+      margin-bottom:8px;
+      color:#9feaff;
+    }
+    .welcome-text{
+      font-size:12px;
+      line-height:1.6;
+      color:#d0d9ff;
+      margin-bottom:12px;
+    }
+    .welcome-highlight{
+      color:var(--accent-lime);
+    }
+    .welcome-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .welcome-btn-main,
+    .welcome-btn-ghost{
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:11px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+      border:1px solid transparent;
+    }
+    .welcome-btn-main{
+      background:linear-gradient(90deg,var(--accent-cyan),var(--accent-magenta));
+      color:#02020a;
+      box-shadow:0 0 12px rgba(0,234,255,0.9);
+    }
+    .welcome-btn-ghost{
+      background:#050515;
+      border-color:rgba(0,234,255,0.6);
+      color:#e8ffff;
+    }
+    @media(max-width:480px){
+      .welcome-modal{
+        padding:14px 12px;
+      }
+      .welcome-text{
+        font-size:11px;
+      }
+    }
+
     /* Footer */
     footer{
       padding:14px 6vw 18px;
@@ -929,6 +1154,27 @@
   </div>
 </header>
 
+<!-- TODAY OVERVIEW STRIP -->
+<section class="today-strip">
+  <div class="today-inner">
+    <div class="today-left">
+      <span class="today-label">Hari ini</span>
+      <span id="todayDateShort" class="today-date">-</span>
+    </div>
+    <div class="today-middle">
+      <span class="today-label">Rencana sesi</span>
+      <span id="todayPlan" class="today-plan">Easy run santai 20–30′</span>
+    </div>
+    <div class="today-right">
+      <span class="today-label">Status</span>
+      <div class="today-right-row">
+        <span id="todayStatus" class="today-status">Belum ada log sesi hari ini</span>
+        <a href="timeline.html" class="today-link">Buka Timeline</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <main>
   <!-- HERO -->
   <section class="hero">
@@ -966,12 +1212,12 @@
       </div>
     </div>
 
-    <!-- HERO KANAN: RUNNER preview -->
+    <!-- HERO KANAN: ECG / Heartbeat Preview -->
     <div class="hero-kanan">
       <div class="hero-kanan-label">Live Preview</div>
       <div class="hero-kanan-title">
-        <span>Neon Runner • Motion Preview</span>
-        <span class="hero-chip">Form • Pace • Flow</span>
+        <span>Neon Heart Rate • Motion Preview</span>
+        <span class="hero-chip">HR • Flow • Rhythm</span>
       </div>
 
       <div class="track-scene">
@@ -981,25 +1227,65 @@
           <div class="track-line"></div>
         </div>
 
-        <div class="runner-scene">
-          <div class="runner-track"></div>
-          <div class="runner-shadow"></div>
-          <div class="runner-figure">
-            <div class="runner-core">
-              <div class="runner-head"></div>
-              <div class="runner-body"></div>
+        <div class="ecg-scene">
+          <div class="ecg-base-line"></div>
+          <div class="ecg-pulse-dot"></div>
 
-              <div class="runner-arm left"></div>
-              <div class="runner-arm right"></div>
+          <svg class="ecg-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="ecgGradientMain" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00eaff"/>
+                <stop offset="50%" stop-color="#ff4dff"/>
+                <stop offset="100%" stop-color="#b0ff4d"/>
+              </linearGradient>
+              <linearGradient id="ecgGradientSoft" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00eaff"/>
+                <stop offset="50%" stop-color="#ff4dff"/>
+                <stop offset="100%" stop-color="#b0ff4d"/>
+              </linearGradient>
+            </defs>
 
-              <div class="runner-leg left">
-                <div class="runner-foot"></div>
-              </div>
-              <div class="runner-leg right">
-                <div class="runner-foot"></div>
-              </div>
-            </div>
-          </div>
+            <!-- Glow (tebal, blur) -->
+            <polyline
+              class="ecg-glow"
+              points="
+                0,32
+                20,32
+                30,28
+                40,40
+                55,10
+                70,50
+                85,30
+                95,34
+                110,20
+                125,45
+                140,28
+                160,32
+                180,32
+                200,32
+              "
+            />
+            <!-- Core line (tajam) -->
+            <polyline
+              class="ecg-path"
+              points="
+                0,32
+                20,32
+                30,28
+                40,40
+                55,10
+                70,50
+                85,30
+                95,34
+                110,20
+                125,45
+                140,28
+                160,32
+                180,32
+                200,32
+              "
+            />
+          </svg>
         </div>
 
         <div class="speed-bars"></div>
@@ -1031,7 +1317,7 @@
     <span class="scroll-arrow">⬇</span>
   </div>
 
-  <!-- PROGRAM CARDS + AI COACH -->
+  <!-- PROGRAM CARDS + LAST SESSION + AI COACH -->
   <section id="programs" class="section">
     <div class="section-title">Pilih program</div>
     <div class="section-sub">
@@ -1095,6 +1381,31 @@
         </div>
       </a>
     </div>
+
+  <!-- LAST SESSION RECAP (AUTO DARI TIMELINE) -->
+<div class="last-session" id="lastSessionCard">
+  <div class="last-session-header">
+    <span class="last-label">Last session recap</span>
+    <span id="lastSessionPill" class="last-pill">Belum ada data</span>
+  </div>
+  <div class="last-main">
+    <div class="last-main-left">
+      <div class="last-title" id="lastSessionTitle">
+        Belum ada sesi di timeline
+      </div>
+      <div class="last-sub" id="lastSessionSub">
+        Upload TCX atau tambah log di timeline dulu.
+      </div>
+    </div>
+    <div class="last-meta">
+      <div class="last-row" id="lastSessionShoe">👟 -</div>
+      <div class="last-row" id="lastSessionRoute">📍 -</div>
+      <div class="last-row">
+        <a href="timeline.html" class="last-link">Lihat detail di timeline →</a>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- Feature list -->
     <div class="feature-list">
@@ -1170,12 +1481,28 @@
   </span>
 </footer>
 
-<!-- AI Coach Welcome Bubble -->
+<!-- Welcome Popup -->
+<div id="welcomeOverlay" class="welcome-overlay">
+  <div class="welcome-modal">
+    <div class="welcome-title">Selamat datang, Rama</div>
+    <div class="welcome-text">
+      Ini adalah dashboard latihan <span class="welcome-highlight">5K &amp; 10K</span>-mu.
+      Gunakan menu di atas buat buka plan 5K Desember, 10K Januari, atau session timeline
+      buat nyimpen semua larian. Siap buat latihan hari ini?
+    </div>
+    <div class="welcome-actions">
+      <button id="welcomeClose" class="welcome-btn-ghost">Nanti dulu</button>
+      <button id="welcomeStart" class="welcome-btn-main">Mulai dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI Coach Welcome Bubble (Tips) -->
 <div id="aiBubble" class="ai-bubble">
   <div class="ai-bubble-header">
     <div class="ai-bubble-title">
       <div class="ai-avatar">🤖</div>
-      <span>RamaBot · Selamat datang</span>
+      <span>RamaBot · Tips latihan</span>
     </div>
     <button id="aiBubbleToggle" class="ai-bubble-toggle" title="Tutup">×</button>
   </div>
@@ -1191,17 +1518,24 @@
   // Tahun otomatis di footer
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Jam + tanggal + fokus harian di header
+  // Jam + tanggal + fokus harian di header + Today strip
   function updateClock(){
     const timeEl   = document.getElementById('clockTime');
     const dateEl   = document.getElementById('clockDate');
     const focusEl  = document.getElementById('clockFocus');
-    if(!timeEl) return;
+
+    const todayDateShortEl = document.getElementById('todayDateShort');
+    const todayPlanEl      = document.getElementById('todayPlan');
+    const todayStatusEl    = document.getElementById('todayStatus');
 
     const now = new Date();
     const h = String(now.getHours()).padStart(2,"0");
     const m = String(now.getMinutes()).padStart(2,"0");
-    timeEl.textContent = `${h}:${m}`;
+    const day = now.getDay(); // 0–6
+
+    if(timeEl){
+      timeEl.textContent = `${h}:${m}`;
+    }
 
     if(dateEl){
       const options = {
@@ -1214,7 +1548,6 @@
     }
 
     if(focusEl){
-      const day = now.getDay(); // 0 Minggu ... 6 Sabtu
       const focuses = {
         0: 'Rest day lembut: jalan santai / stretching.',
         1: 'Easy run pendek + sedikit mobility.',
@@ -1225,6 +1558,41 @@
         6: 'Long run santai, nikmati jaraknya.'
       };
       focusEl.textContent = 'Fokus hari ini: ' + (focuses[day] || 'Easy run santai yang konsisten.');
+    }
+
+    // Today strip
+    if(todayDateShortEl){
+      const optsShort = {
+        weekday:'short',
+        day:'numeric',
+        month:'short'
+      };
+      todayDateShortEl.textContent = now.toLocaleDateString('id-ID', optsShort);
+    }
+
+    if(todayPlanEl){
+      const planByDay = {
+        0: 'Rest / jalan santai 20–30′',
+        1: 'Easy run 4–5K • pace 6:45–7:30',
+        2: 'Tempo pendek 10–15′ + easy',
+        3: 'Easy run 4–6K super santai',
+        4: 'Key session: interval / tempo',
+        5: 'Easy 3–5K + mobility ringan',
+        6: 'Long run 7–10K • pace santai'
+      };
+      todayPlanEl.textContent = planByDay[day] || 'Easy run santai 20–30′';
+    }
+
+    if(todayStatusEl){
+      let statusText;
+      if(now.getHours() < 12){
+        statusText = 'Pagi: belum ada log sesi.';
+      }else if(now.getHours() < 18){
+        statusText = 'Cek: sudah lari atau belum hari ini?';
+      }else{
+        statusText = 'Malam: kalau sudah lari, log di timeline ya.';
+      }
+      todayStatusEl.textContent = statusText;
     }
   }
   updateClock();
@@ -1258,13 +1626,13 @@
       aiGoalTitle.textContent = msg.title;
       aiGoalBody.textContent  = msg.body;
 
-      // efek kecil: highlight tombol yang dipilih
+      // highlight tombol yang dipilih
       goalButtons.forEach(b=>b.style.borderColor='#2c2c4f');
       btn.style.borderColor='rgba(0,234,255,0.9)';
     });
   });
 
-  // AI Coach Bubble (selamat datang + tips)
+  // AI Coach Bubble (tips)
   const aiBubble       = document.getElementById('aiBubble');
   const aiBubbleText   = document.getElementById('aiBubbleText');
   const aiBubbleToggle = document.getElementById('aiBubbleToggle');
@@ -1285,7 +1653,6 @@
     aiBubbleText.textContent = tips[idx];
   }
 
-  // Bubble selamat datang (pakai tanggal & jam sekarang)
   function setWelcomeMessage(){
     const now = new Date();
     const options = {
@@ -1300,18 +1667,17 @@
 
     aiBubbleText.textContent =
       `Selamat datang di Rama Runna Pro, Rama! Hari ini ${tanggal}, jam ${h}:${m}. ` +
-      `Pilih dulu mau fokus 5K atau 10K, lalu pakai timeline buat nyimpen semua sesi larianmu.`;
+      `Pakai plan 5K & 10K ini buat nyimpen semua sesi larianmu dengan rapi.`;
   }
-
-  // buka bubble dengan pesan selamat datang
-  setWelcomeMessage();
-  aiBubble.classList.add('show');
 
   aiBubbleToggle.addEventListener('click', ()=>{
     if(aiBubble.classList.contains('show')){
       aiBubble.classList.remove('show');
     }else{
       aiBubble.classList.add('show');
+      if(!aiBubbleText.textContent.trim()){
+        setRandomTip();
+      }
     }
   });
 
@@ -1347,6 +1713,99 @@
 
     observer.observe(programsSection);
   }
+
+  // Welcome popup setiap buka
+  const welcomeOverlay = document.getElementById('welcomeOverlay');
+  const welcomeStart   = document.getElementById('welcomeStart');
+  const welcomeClose   = document.getElementById('welcomeClose');
+
+  function openWelcome(){
+    if(welcomeOverlay){
+      welcomeOverlay.classList.add('show');
+    }
+  }
+  function closeWelcome(){
+    if(welcomeOverlay){
+      welcomeOverlay.classList.remove('show');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', openWelcome);
+
+  if(welcomeStart){
+    welcomeStart.addEventListener('click', ()=>{
+      closeWelcome();
+      setWelcomeMessage();
+      aiBubble.classList.add('show');
+    });
+  }
+
+  if(welcomeClose){
+    welcomeClose.addEventListener('click', closeWelcome);
+  }
+  
+  // === LAST SESSION DARI TIMELINE ===
+const SHARED_STORAGE_KEY = 'RAMA_RUNNA_TIMELINE_V1';
+
+function loadLastSessionFromTimeline(){
+  const cardEl  = document.getElementById('lastSessionCard');
+  const titleEl = document.getElementById('lastSessionTitle');
+  const subEl   = document.getElementById('lastSessionSub');
+  const shoeEl  = document.getElementById('lastSessionShoe');
+  const routeEl = document.getElementById('lastSessionRoute');
+  const pillEl  = document.getElementById('lastSessionPill');
+
+  if(!cardEl || !titleEl || !subEl) return;
+
+  let sessions;
+  try{
+    const raw = localStorage.getItem(SHARED_STORAGE_KEY);
+    if(!raw) return; // belum ada data
+    sessions = JSON.parse(raw);
+  }catch(e){
+    console.warn('Gagal baca last session dari storage', e);
+    return;
+  }
+
+  if(!Array.isArray(sessions) || sessions.length === 0) return;
+
+  // Ambil yang paling baru berdasarkan createdAt / dateISO
+  sessions.sort((a,b)=>{
+    const da = a.createdAt || a.dateISO || a.date || '';
+    const db = b.createdAt || b.dateISO || b.date || '';
+    return new Date(db) - new Date(da);
+  });
+
+  const s = sessions[0];
+
+  const jarak = (s.distanceKm != null)
+    ? s.distanceKm.toFixed(2) + ' km'
+    : (s.title || '');
+  const pace  = s.paceLabel || '';
+  const dur   = s.durationLabel || '';
+  const hr    = s.hrAvg ? ` • HR rata-rata ${s.hrAvg} bpm` : '';
+
+  titleEl.textContent = jarak && pace
+    ? `${jarak} • ${pace}`
+    : (s.title || 'Last session');
+
+  subEl.textContent = (dur || hr)
+    ? `${dur}${hr}`
+    : (s.note || 'Session terakhir dari timeline.');
+
+  if(shoeEl){
+    shoeEl.textContent = '👟 ' + (s.shoeName || '—');
+  }
+  if(routeEl){
+    routeEl.textContent = '📍 Route: ' + (s.routeName || '—');
+  }
+  if(pillEl){
+    pillEl.textContent = 'Auto dari timeline';
+  }
+}
+
+// Panggil saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', loadLastSessionFromTimeline);
 </script>
 
 </body>
