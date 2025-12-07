@@ -716,7 +716,7 @@ const plan = [
   {day:31, type:'Interval', title:'Final Test 1 km',             pace:'4:50–5:20', focus:'Tes besar, bayangkan race 5K nanti.',                  block:'key'}
 ];
 
-let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, shoe, note, route}}
+let logs = {};                 // {day: {paceSec, hr, dist, timeSec, rpe, shoe, note, route, splits}}
 let selectedIndex = null;
 let activeFilter = 'all';
 let editingIndex = null;
@@ -789,7 +789,25 @@ function rpeLabel(rpe){
   if(rpe==='crazy') return 'Meledak';
   return '';
 }
+
 const STORAGE_KEY = 'runnaUltraLogs_5K_DEC'; // khusus 5K Desember
+
+// --- SHARED STORAGE UNTUK LANDING PAGE & TIMELINE (LAST SESSION) ---
+const SHARED_STORAGE_KEY = 'RAMA_RUNNA_TIMELINE_V1';
+
+function saveSessionToSharedStorage(summary){
+  try{
+    const raw = localStorage.getItem(SHARED_STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push({
+      ...summary,
+      createdAt: new Date().toISOString()
+    });
+    localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(arr));
+  }catch(e){
+    console.warn('Gagal simpan session ke storage bersama', e);
+  }
+}
 
 function loadLogs(){
   try{
@@ -1785,6 +1803,23 @@ function saveModalLog(){
 
   logs[p.day] = baseLog;
   pendingTCX = null;
+
+  // --- simpan ringkasan sesi ke storage bersama untuk landing page & timeline ---
+  try{
+    const isoToday = new Date().toISOString().slice(0,10);
+    saveSessionToSharedStorage({
+      dateISO: isoToday,
+      distanceKm: baseLog.dist != null && !isNaN(baseLog.dist) ? baseLog.dist : null,
+      paceLabel: baseLog.paceSec != null && !isNaN(baseLog.paceSec) ? formatPace(baseLog.paceSec) + ' /km' : '-',
+      durationLabel: baseLog.timeSec != null && !isNaN(baseLog.timeSec) ? formatDuration(baseLog.timeSec) : '-',
+      hrAvg: baseLog.hr != null && !isNaN(baseLog.hr) ? baseLog.hr : null,
+      shoeName: baseLog.shoe || '',
+      routeName: `${p.type} • ${p.title}`
+    });
+  }catch(e){
+    console.warn('Gagal update shared last-session storage', e);
+  }
+
   afterSaveLog(p, baseLog);
 }
 
@@ -1817,20 +1852,20 @@ function findLastDayWithRoute(){
 function showTodayMap(){
   const today = new Date().getDate();
   const todayPlan = plan.find(p=>p.day===today);
-  if(!todayPlan){
-    showBubble('Hari ini tidak ada jadwal di plan ini.', 'easy');
-    return;
-  }
-  const d = todayPlan.day;
-  if(logs[d] && logs[d].route && logs[d].route.length){
-    renderRouteForDay(d);
-    const idx = plan.findIndex(p=>p.day===d);
-    if(idx!==-1){ selectedIndex=idx; highlightSelected(); }
-    showBubble(`Map untuk ${d} Des ditampilkan.`, todayPlan.type);
-    const sel = document.getElementById('mapDaySelect');
-    if(sel) sel.value = String(d);
+  if(todayPlan){
+    const d = todayPlan.day;
+    if(logs[d] && logs[d].route && logs[d].route.length){
+      renderRouteForDay(d);
+      const idx = plan.findIndex(p=>p.day===d);
+      if(idx!==-1){ selectedIndex=idx; highlightSelected(); }
+      showBubble(`Map untuk ${d} Des ditampilkan.`, todayPlan.type);
+      const sel = document.getElementById('mapDaySelect');
+      if(sel) sel.value = String(d);
+    }else{
+      showBubble('Belum ada TCX untuk hari ini. Upload dulu baru map bisa muncul 😉', 'rest');
+    }
   }else{
-    showBubble('Belum ada TCX untuk hari ini. Upload dulu baru map bisa muncul 😉', 'rest');
+    showBubble('Hari ini tidak ada jadwal di plan ini.', 'easy');
   }
 }
 
